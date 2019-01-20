@@ -26,11 +26,13 @@ CONFIG += c++11
 
 SOURCES += \
         main.cpp \
-        mainwindow.cpp
+        mainwindow.cpp \
+    widgets/clickablegs.cpp
 
 HEADERS += \
         mainwindow.h \
-    static.h
+    static.h \
+    widgets/clickablegs.h
 
 FORMS += \
         mainwindow.ui

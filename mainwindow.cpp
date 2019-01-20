@@ -56,7 +56,7 @@ void MainWindow::setupWidgets()
     _model = new QStandardItemModel;
     ui->tableView->setModel(_model);
 
-    _scene = new QGraphicsScene;
+    _scene = new ClickableGS;
     ui->graphicsView->setScene(_scene);
 }
 

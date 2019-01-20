@@ -15,6 +15,7 @@
 #include <algorithm>
 //
 #include "static.h"
+#include "widgets/clickablegs.h"
 
 namespace Ui {
 class MainWindow;
@@ -39,7 +40,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     QStandardItemModel *_model;
-    QGraphicsScene *_scene;
+    ClickableGS *_scene;
     QList<QImage> _images;
     int _activeIndex;
     //
