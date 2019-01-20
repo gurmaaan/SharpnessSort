@@ -8,6 +8,7 @@
 #include <QDebug>
 #include <QStandardItemModel>
 #include <QImage>
+#include <QGuiApplication>
 //
 #include <algorithm>
 //
@@ -28,12 +29,15 @@ public:
 private slots:
     void on_action_openDir_triggered();
 
+    void on_action_exit_triggered();
+
 private:
     Ui::MainWindow *ui;
     QStandardItemModel *_model;
     QList<QImage> _images;
     //
     void setupWidgets();
+    void setActiveImg(int index);
 };
 
 #endif // MAINWINDOW_H

@@ -37,6 +37,27 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
+      <property name="editTriggers">
+       <set>QAbstractItemView::NoEditTriggers</set>
+      </property>
+      <property name="selectionMode">
+       <enum>QAbstractItemView::SingleSelection</enum>
+      </property>
+      <property name="selectionBehavior">
+       <enum>QAbstractItemView::SelectColumns</enum>
+      </property>
+      <property name="textElideMode">
+       <enum>Qt::ElideMiddle</enum>
+      </property>
+      <property name="showGrid">
+       <bool>false</bool>
+      </property>
+      <attribute name="horizontalHeaderVisible">
+       <bool>false</bool>
+      </attribute>
+      <attribute name="verticalHeaderVisible">
+       <bool>false</bool>
+      </attribute>
      </widget>
     </item>
    </layout>
@@ -55,8 +76,20 @@
      <string>Файл</string>
     </property>
     <addaction name="action_openDir"/>
+    <addaction name="separator"/>
+    <addaction name="action_exit"/>
+   </widget>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>Вид</string>
+    </property>
+    <addaction name="action_previous"/>
+    <addaction name="action_next"/>
+    <addaction name="action_first"/>
+    <addaction name="action_last"/>
    </widget>
    <addaction name="menu_file"/>
+   <addaction name="menu"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -148,6 +181,81 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="action_exit">
+   <property name="icon">
+    <iconset resource="sources.qrc">
+     <normaloff>:/icons/app_quit_ic.png</normaloff>:/icons/app_quit_ic.png</iconset>
+   </property>
+   <property name="text">
+    <string>Выход</string>
+   </property>
+   <property name="toolTip">
+    <string>Выход из приложения</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="action_next">
+   <property name="icon">
+    <iconset resource="sources.qrc">
+     <normaloff>:/icons/next_ic.png</normaloff>:/icons/next_ic.png</iconset>
+   </property>
+   <property name="text">
+    <string>Следующее изображение</string>
+   </property>
+   <property name="toolTip">
+    <string>Вывод на экран следующего по списку изображения</string>
+   </property>
+   <property name="shortcut">
+    <string>Right</string>
+   </property>
+  </action>
+  <action name="action_previous">
+   <property name="icon">
+    <iconset resource="sources.qrc">
+     <normaloff>:/icons/previous_ic.png</normaloff>:/icons/previous_ic.png</iconset>
+   </property>
+   <property name="text">
+    <string>Предыдущее изображение</string>
+   </property>
+   <property name="toolTip">
+    <string>Вывод на экран предыдущего по списку изображения</string>
+   </property>
+   <property name="shortcut">
+    <string>Left</string>
+   </property>
+  </action>
+  <action name="action_first">
+   <property name="icon">
+    <iconset resource="sources.qrc">
+     <normaloff>:/icons/first_ic.png</normaloff>:/icons/first_ic.png</iconset>
+   </property>
+   <property name="text">
+    <string>Первое изображение</string>
+   </property>
+   <property name="toolTip">
+    <string>Вывод на экран первого  по списку изображения</string>
+   </property>
+   <property name="shortcut">
+    <string>Home</string>
+   </property>
+  </action>
+  <action name="action_last">
+   <property name="icon">
+    <iconset resource="sources.qrc">
+     <normaloff>:/icons/last_ic.png</normaloff>:/icons/last_ic.png</iconset>
+   </property>
+   <property name="text">
+    <string>Последнее изображение</string>
+   </property>
+   <property name="toolTip">
+    <string>Вывод на экран последнего по списку изображения</string>
+   </property>
+   <property name="shortcut">
+    <string>End</string>
    </property>
   </action>
  </widget>
