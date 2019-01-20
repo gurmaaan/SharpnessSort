@@ -26,7 +26,6 @@ void MainWindow::on_action_openDir_triggered()
     ui->tableView->setIconSize(QSize(100, 100));
     //ui->tableView->verticalHeader()->setDefaultSectionSize(100);
     ui->tableView->setRowHeight(0, 100);
-//    ui->tableView->setMinimumHeight(icons * 2);
 
     QList<QStandardItem*> imgRow;
     QList<QStandardItem*> nameRow;
@@ -49,6 +48,7 @@ void MainWindow::on_action_openDir_triggered()
     }
     _model->appendRow(imgRow);
     _model->appendRow(nameRow);
+    setActiveImg(0);
 }
 
 void MainWindow::setupWidgets()
@@ -56,12 +56,44 @@ void MainWindow::setupWidgets()
     _model = new QStandardItemModel;
     ui->tableView->setModel(_model);
 
-    ui->tableView->horizontalHeader()->setVisible(false);
-    ui->tableView->verticalHeader()->setVisible(false);
-    ui->tableView->setShowGrid(false);
+    _scene = new QGraphicsScene;
+    ui->graphicsView->setScene(_scene);
+}
+
+void MainWindow::setActiveImg(int index)
+{
+    if( (index >= 0) && (index < _images.count()) )
+    {
+        _activeIndex = index;
+        ui->tableView->selectColumn(index);
+        _scene->clear();
+        QPixmap pixmap(QPixmap::fromImage(_images.at(index)));
+        QGraphicsPixmapItem *pixmapItem = new QGraphicsPixmapItem(pixmap);
+        _scene->addItem(pixmapItem);
+    }
 }
 
 void MainWindow::on_action_exit_triggered()
 {
     QGuiApplication::exit();
+}
+
+void MainWindow::on_action_next_triggered()
+{
+    setActiveImg(_activeIndex + 1);
+}
+
+void MainWindow::on_action_previous_triggered()
+{
+    setActiveImg(_activeIndex - 1);
+}
+
+void MainWindow::on_action_first_triggered()
+{
+    setActiveImg(0);
+}
+
+void MainWindow::on_action_last_triggered()
+{
+    setActiveImg(_images.length() - 1);
 }
