@@ -10,6 +10,7 @@
 #include <QImage>
 #include <QGuiApplication>
 #include <QGraphicsView>
+#include <QSpinBox>
 #include <QGraphicsItem>
 //
 #include <algorithm>
@@ -45,7 +46,9 @@ private:
     int _activeIndex;
     //
     void setupWidgets();
+    void setSB(QSpinBox *sb, int value);
     void setActiveImg(int index);
+    void scaleImage(double k);
 };
 
 #endif // MAINWINDOW_H

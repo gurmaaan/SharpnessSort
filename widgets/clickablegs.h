@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
-#include <QGraphicsEllipseItem>
+#include <QGraphicsItem>
 #include <QDebug>
 #include <QGuiApplication>
 

@@ -12,5 +12,8 @@ void ClickableGS::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
 void ClickableGS::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-    qDebug()<< event->scenePos();
+    if(this->items().length() > 0)
+    {
+        this->items().first()->setPos(event->pos());
+    }
 }

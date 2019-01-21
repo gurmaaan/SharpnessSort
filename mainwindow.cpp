@@ -31,8 +31,13 @@ void MainWindow::on_action_openDir_triggered()
     QList<QStandardItem*> nameRow;
     for(int i = 0; i < imgNames.length(); i++)
     {
+        setSB(ui->imgCnt_sb, i);
+
         QString imgPath = QString(TEST_DIR) + QDir::separator() + imgNames.at(i);
         QImage img(imgPath);
+
+        setSB(ui->imgSizeH_sb, img.height());
+        setSB(ui->imgSizeW_sb, img.width());
         _images.append(img);
         QStandardItem *imgItem = new QStandardItem;
         QStandardItem *nameItem = new QStandardItem(imgNames.at(i));
@@ -45,6 +50,7 @@ void MainWindow::on_action_openDir_triggered()
         nameRow << nameItem;
 
         ui->dir_progress->setValue(i+1);
+        qDebug() << imgNames.at(i) << " : " << img.width() << " x " << img.height();
     }
     _model->appendRow(imgRow);
     _model->appendRow(nameRow);
@@ -57,7 +63,14 @@ void MainWindow::setupWidgets()
     ui->tableView->setModel(_model);
 
     _scene = new ClickableGS;
-    ui->graphicsView->setScene(_scene);
+    ui->vie_gv->setScene(_scene);
+}
+
+void MainWindow::setSB(QSpinBox *sb, int value)
+{
+    sb->setMaximum(value);
+    sb->setMinimum(0);
+    sb->setValue(value);
 }
 
 void MainWindow::setActiveImg(int index)
@@ -71,6 +84,11 @@ void MainWindow::setActiveImg(int index)
         QGraphicsPixmapItem *pixmapItem = new QGraphicsPixmapItem(pixmap);
         _scene->addItem(pixmapItem);
     }
+}
+
+void MainWindow::scaleImage(double k)
+{
+
 }
 
 void MainWindow::on_action_exit_triggered()
