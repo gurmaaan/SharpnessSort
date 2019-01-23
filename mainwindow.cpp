@@ -8,6 +8,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     setupWidgets();
+    connectAll();
     showMaximized();
 }
 
@@ -24,6 +25,7 @@ void MainWindow::on_action_openDir_triggered()
 
     ui->dir_progress->setMaximum(imgNames.count());
     ui->tableView->setIconSize(QSize(100, 100));
+    //TODO : норм размер иконок
     //ui->tableView->verticalHeader()->setDefaultSectionSize(100);
     ui->tableView->setRowHeight(0, 100);
 
@@ -50,8 +52,8 @@ void MainWindow::on_action_openDir_triggered()
         nameRow << nameItem;
 
         ui->dir_progress->setValue(i+1);
-        qDebug() << imgNames.at(i) << " : " << img.width() << " x " << img.height();
     }
+    ui->baseImg_cb->addItems(imgNames);
     _model->appendRow(imgRow);
     _model->appendRow(nameRow);
     setActiveImg(0);
@@ -62,8 +64,17 @@ void MainWindow::setupWidgets()
     _model = new QStandardItemModel;
     ui->tableView->setModel(_model);
 
-    _scene = new ClickableGS;
-    ui->vie_gv->setScene(_scene);
+    _viewScene = new ClickableGS;
+    ui->vie_gv->setScene(_viewScene);
+
+    _diffScene = new QGraphicsScene;
+    ui->diff_gv->setScene(_diffScene);
+}
+
+void MainWindow::connectAll()
+{
+    connect(this, &MainWindow::resultCalced, 
+            this, &MainWindow::setImgDiff);
 }
 
 void MainWindow::setSB(QSpinBox *sb, int value)
@@ -79,16 +90,40 @@ void MainWindow::setActiveImg(int index)
     {
         _activeIndex = index;
         ui->tableView->selectColumn(index);
-        _scene->clear();
-        QPixmap pixmap(QPixmap::fromImage(_images.at(index)));
+        _viewScene->clear();
+        QImage activeImg = _images.at(index);
+        QPixmap pixmap( QPixmap::fromImage(activeImg) );
         QGraphicsPixmapItem *pixmapItem = new QGraphicsPixmapItem(pixmap);
-        _scene->addItem(pixmapItem);
+        _viewScene->addItem(pixmapItem);
+        //diffImages(_baseImage, activeImg);
     }
 }
 
 void MainWindow::scaleImage(double k)
 {
+    Q_UNUSED(k);
+    //TODO : image scaling
+}
 
+void MainWindow::diffImages(QImage base, QImage current)
+{   
+    int k = ui->diffK_sb->value();
+    if(base.size() == current.size())
+    {
+        QImage resImg(base.size(), base.format());
+        for(int j = 0; j < base.height(); j++)
+        {
+            for(int i = 0; i < base.width(); i++)
+            {
+                int r = 0, g = 0, b = 0;
+                r = (( base.pixelColor(i,j).red() - current.pixelColor(i,j).red() ) * k) + 128;
+                g = (( base.pixelColor(i,j).green() - current.pixelColor(i,j).green() ) * k) + 128;
+                b = (( base.pixelColor(i,j).blue() - current.pixelColor(i,j).blue() ) * k) + 128;
+            }
+        }
+
+        setImgDiff(resImg);
+    }
 }
 
 void MainWindow::on_action_exit_triggered()
@@ -114,4 +149,30 @@ void MainWindow::on_action_first_triggered()
 void MainWindow::on_action_last_triggered()
 {
     setActiveImg(_images.length() - 1);
+}
+
+void MainWindow::on_baseImg_cb_currentIndexChanged(int index)
+{
+    QImage baseImg = _images.at(index);
+    setBaseImage(baseImg);
+    QPixmap pixMap = QPixmap::fromImage(baseImg);
+    ui->baseImagPrevie_lbl->setPixmap(pixMap.scaled(250, 150));
+}
+
+QImage MainWindow::getBaseImage() const
+{
+    return _baseImage;
+}
+
+void MainWindow::setBaseImage(const QImage &value)
+{
+    _baseImage = value;
+}
+
+void MainWindow::setImgDiff(QImage result)
+{
+    _diffScene->clear();
+    QPixmap pm(QPixmap::fromImage(result));
+    QGraphicsPixmapItem *pmItem = new QGraphicsPixmapItem(pm);
+    _diffScene->addItem(pmItem);
 }
