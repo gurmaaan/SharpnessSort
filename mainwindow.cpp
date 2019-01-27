@@ -33,6 +33,7 @@ void MainWindow::on_action_openDir_triggered()
 
     QList<QStandardItem*> imgRow;
     QList<QStandardItem*> nameRow;
+    QList<QStandardItem*> sharpRow;
     for(int i = 0; i < _imgNames.length(); i++)
     {
         setSB(ui->imgCnt_sb, i);
@@ -45,6 +46,8 @@ void MainWindow::on_action_openDir_triggered()
         _images.append(img);
         QStandardItem *imgItem = new QStandardItem;
         QStandardItem *nameItem = new QStandardItem(_imgNames.at(i));
+        //TODO: коэффициент резкости
+        QStandardItem *sharpItem = new QStandardItem(QString::number(0));
         nameItem->setData(Qt::AlignCenter, Qt::TextAlignmentRole);
 
         imgItem->setSizeHint(QSize(100, 100));
@@ -52,13 +55,21 @@ void MainWindow::on_action_openDir_triggered()
 
         imgRow << imgItem;
         nameRow << nameItem;
+        sharpRow << sharpItem;
 
         ui->dir_progress->setValue(i+1);
     }
 
     ui->baseImg_cb->addItems(_imgNames);
     _model->appendRow(imgRow);
+    QStandardItem *vertHeader0 = new QStandardItem("Изображение");
+    _model->setVerticalHeaderItem(0, vertHeader0);
+    QStandardItem *vertHeader1 = new QStandardItem("Имя");
     _model->appendRow(nameRow);
+    _model->setVerticalHeaderItem(1, vertHeader1);
+    QStandardItem *vertHeader2 = new QStandardItem("Критерий резкости");
+    _model->appendRow(sharpRow);
+    _model->setVerticalHeaderItem(2, vertHeader2);
     setActiveImg(0);
     setBaseImgPreview(_images.first());
     setBaseIndex(0);
@@ -100,7 +111,8 @@ void MainWindow::setActiveImg(int index)
         QImage activeImg = _images.at(index);
         setActiveImg(activeImg);
         QImage res = diffImages(_baseImage, activeImg);
-        setImgDiff(res);
+        if(ui->diffK_sb->value() != 0)
+            setImgDiff(res);
     }
 }
 

@@ -28,7 +28,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="view_tab">
        <attribute name="title">
@@ -56,6 +56,11 @@
          <widget class="QGraphicsView" name="diff_gv"/>
         </item>
        </layout>
+      </widget>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>График</string>
+       </attribute>
       </widget>
      </widget>
     </item>
@@ -86,7 +91,7 @@
        <bool>false</bool>
       </attribute>
       <attribute name="verticalHeaderVisible">
-       <bool>false</bool>
+       <bool>true</bool>
       </attribute>
      </widget>
     </item>
