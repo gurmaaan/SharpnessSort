@@ -299,6 +299,19 @@
            </widget>
           </item>
           <item>
+           <widget class="QLabel" name="tl_L_lbl">
+            <property name="text">
+             <string>(</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <property name="buddy">
+             <cstring>tlx_sb</cstring>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QSpinBox" name="tlx_sb">
             <property name="minimumSize">
              <size>
@@ -319,12 +332,12 @@
              <string/>
             </property>
             <property name="prefix">
-             <string>( </string>
+             <string/>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="tlx_lbl">
+           <widget class="QLabel" name="tl_x_lbl">
             <property name="text">
              <string>;</string>
             </property>
@@ -354,7 +367,17 @@
              <enum>QAbstractSpinBox::NoButtons</enum>
             </property>
             <property name="suffix">
-             <string> )</string>
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="tl_R_lbl">
+            <property name="text">
+             <string>)</string>
+            </property>
+            <property name="buddy">
+             <cstring>tly_sb</cstring>
             </property>
            </widget>
           </item>
@@ -363,9 +386,22 @@
         <item>
          <layout class="QHBoxLayout" name="br_H_lyt">
           <item>
-           <widget class="QLabel" name="tl_lbl_2">
+           <widget class="QLabel" name="br_lbl">
             <property name="text">
              <string>Право низ</string>
+            </property>
+            <property name="buddy">
+             <cstring>brx_sb</cstring>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="br_R_lbl_2">
+            <property name="text">
+             <string>(</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
             <property name="buddy">
              <cstring>brx_sb</cstring>
@@ -393,12 +429,12 @@
              <string/>
             </property>
             <property name="prefix">
-             <string>( </string>
+             <string/>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="tlx_lbl_2">
+           <widget class="QLabel" name="br_x_lbl">
             <property name="text">
              <string>;</string>
             </property>
@@ -428,7 +464,17 @@
              <enum>QAbstractSpinBox::NoButtons</enum>
             </property>
             <property name="suffix">
-             <string> )</string>
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="br_R_lbl">
+            <property name="text">
+             <string>)</string>
+            </property>
+            <property name="buddy">
+             <cstring>bry_sb</cstring>
             </property>
            </widget>
           </item>
