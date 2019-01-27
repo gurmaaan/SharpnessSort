@@ -736,12 +736,28 @@
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>153</x>
-     <y>396</y>
+     <x>189</x>
+     <y>565</y>
     </hint>
     <hint type="destinationlabel">
-     <x>263</x>
-     <y>405</y>
+     <x>279</x>
+     <y>564</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>diffK_H_sldr</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>diffK_sb</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>151</x>
+     <y>559</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>272</x>
+     <y>558</y>
     </hint>
    </hints>
   </connection>

@@ -37,11 +37,18 @@ public:
     int getActiveIndex() const;
     void setActiveIndex(int activeIndex);
 
+    QStringList getImgNames() const;
+    void setImgNames(const QStringList &imgNames);
+
+    QImage getActiveImage() const;
+    void setActiveImage(const QImage &activeImage);
+
 signals:
     void resultCalced(QImage result);
 
 public slots:
     void setImgDiff(QImage result);
+    void setBaseIndex(int baseIndex);
 
 private slots:
     void on_action_openDir_triggered();
@@ -54,16 +61,22 @@ private slots:
     void on_tableView_clicked(const QModelIndex &index);
     void on_MainWindow_customContextMenuRequested(const QPoint &pos);
     void on_scale_sldr_sliderMoved(int position);
-    void on_vie_gv_rubberBandChanged(const QRect &viewportRect, const QPointF &fromScenePoint, const QPointF &toScenePoint);
+
+    void on_diffK_H_sldr_valueChanged(int value);
 
 private:
     Ui::MainWindow *ui;
     QStandardItemModel *_model;
+    QStringList _imgNames;
     ClickableGS *_viewScene;
     QGraphicsScene *_diffScene;
     QList<QImage> _images;
     QImage _baseImage;
+    int _baseIndex;
+    QImage _activeImage;
     int _activeIndex;
+
+    int _sharpIndex;
     //
     void setupWidgets();
     void connectAll();
@@ -72,7 +85,7 @@ private:
     void setActiveImg(QImage img);
     void setBaseImgPreview(QImage img);
     void scaleImage(double k);
-    void diffImages(QImage base, QImage current);
+    QImage diffImages(QImage base, QImage current);
     void setVisibleRectCorners(QRectF visible);
     QColor validColor(int r = 0, int g = 0, int b = 0);
     int validComponent(int c = 0);
