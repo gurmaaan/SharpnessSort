@@ -215,7 +215,16 @@ void MainWindow::printSharpMask(QVector<QVector<int> > mask)
     qDebug() << "------ mask ------";
     for(int i = 0; i < mask.length(); i++)
     {
-        qDebug() << mask.at(i);
+        QString rowStr ="";
+        QVector<int> row = mask.at(i);
+        for(int j = 0; j < row.length(); j++)
+        {
+            if(row.at(j) == 1)
+                rowStr = rowStr + QString(" 1");
+            else
+                rowStr = rowStr + QString("-1");
+        }
+        qDebug().noquote() << rowStr;
     }
     qDebug() << "------------------";
 }
@@ -388,7 +397,9 @@ void MainWindow::setActiveImage(const QImage &activeImage)
 
 void MainWindow::on_calckSharp_btn_clicked()
 {
-    QVector< QVector<int> > mask = genSharpMask(ui->sharpMask_width_sb->value(), ui->sharpMask_height_sb->value(), ui->sharpMascType_cb->currentIndex());
+    QVector< QVector<int> > mask = genSharpMask(ui->sharpMask_width_sb->value(),
+                                                ui->sharpMask_height_sb->value(),
+                                                ui->sharpMascType_cb->currentIndex());
     printSharpMask(mask);
-    qDebug() << sumOfPosMaskKoeff(mask);
+    qDebug() << "Число положительных коэффициентов:" << sumOfPosMaskKoeff(mask);
 }
