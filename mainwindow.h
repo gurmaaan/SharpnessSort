@@ -49,6 +49,8 @@ signals:
 public slots:
     void setImgDiff(QImage result);
     void setBaseIndex(int baseIndex);
+    void updateCorners(int scrollBarPos);
+    void updateDiffCorners(int scrollBarPos);
 
 private slots:
     void on_action_openDir_triggered();
@@ -61,9 +63,7 @@ private slots:
     void on_tableView_clicked(const QModelIndex &index);
     void on_MainWindow_customContextMenuRequested(const QPoint &pos);
     void on_scale_sldr_sliderMoved(int position);
-
     void on_diffK_H_sldr_valueChanged(int value);
-
     void on_calckSharp_btn_clicked();
 
 private:

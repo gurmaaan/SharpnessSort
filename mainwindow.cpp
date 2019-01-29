@@ -73,6 +73,8 @@ void MainWindow::on_action_openDir_triggered()
     setBaseIndex(0);
 
     ui->tableView->setRowHeight(1, TABLE_IC_SIZE);
+
+    setVisibleRectCorners(ui->view_gv->mapToScene(ui->view_gv->viewport()->geometry()).boundingRect());
 }
 
 void MainWindow::setupWidgets()
@@ -82,7 +84,7 @@ void MainWindow::setupWidgets()
     ui->tableView->setModel(_model);
 
     _viewScene = new ClickableGS;
-    ui->vie_gv->setScene(_viewScene);
+    ui->view_gv->setScene(_viewScene);
 
     _diffScene = new QGraphicsScene;
     ui->diff_gv->setScene(_diffScene);
@@ -92,6 +94,15 @@ void MainWindow::connectAll()
 {
     connect(this, &MainWindow::resultCalced, 
             this, &MainWindow::setImgDiff);
+    //-------------------------------------
+    connect(ui->view_gv->horizontalScrollBar(), &QScrollBar::sliderMoved,
+            this, &MainWindow::updateCorners);
+    connect(ui->view_gv->verticalScrollBar(), &QScrollBar::sliderMoved,
+            this, &MainWindow::updateCorners);
+    connect(ui->diff_gv->horizontalScrollBar(), &QScrollBar::sliderMoved,
+            this, &MainWindow::updateDiffCorners);
+    connect(ui->diff_gv->verticalScrollBar(), &QScrollBar::sliderMoved,
+            this, &MainWindow::updateDiffCorners);
 }
 
 void MainWindow::setSB(QSpinBox *sb, int value)
@@ -105,7 +116,7 @@ void MainWindow::setActiveImg(int index)
 {
     if( (index >= 0) && (index < _images.count()) )
     {
-        setVisibleRectCorners(ui->vie_gv->mapToScene(ui->vie_gv->viewport()->geometry()).boundingRect());
+        setVisibleRectCorners(ui->view_gv->mapToScene(ui->view_gv->viewport()->geometry()).boundingRect());
         setActiveIndex(index);
         ui->tableView->selectColumn(index);
 
@@ -254,6 +265,8 @@ int MainWindow::sumOfPosMaskKoeff(QVector<QVector<int> > mask)
 
 int MainWindow::sharpKoeff(QVector<QVector<int> > mask, QImage img)
 {
+    Q_UNUSED(mask);
+    Q_UNUSED(img);
     int coeff = 0;
     return  coeff;
 }
@@ -336,6 +349,18 @@ void MainWindow::setBaseIndex(int baseIndex)
     QModelIndex mBaseIndex(_model->index(2, baseIndex));
     _model->setData(mBaseIndex, QColor(Qt::green), Qt::BackgroundColorRole);
     _model->setData(mBaseIndex, QString(BASE_IMG_STR) + _imgNames.at(baseIndex), Qt::DisplayRole);
+}
+
+void MainWindow::updateCorners(int scrollBarPos)
+{
+    Q_UNUSED(scrollBarPos);
+    setVisibleRectCorners(ui->view_gv->mapToScene(ui->view_gv->viewport()->geometry()).boundingRect());
+}
+
+void MainWindow::updateDiffCorners(int scrollBarPos)
+{
+    Q_UNUSED(scrollBarPos);
+    setVisibleRectCorners(ui->diff_gv->mapToScene(ui->diff_gv->viewport()->geometry()).boundingRect());
 }
 
 void MainWindow::on_tableView_clicked(const QModelIndex &index)

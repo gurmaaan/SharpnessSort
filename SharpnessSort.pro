@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui printsupport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -28,13 +28,15 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     widgets/clickablegs.cpp \
-    imgcalc.cpp
+    imgcalc.cpp \
+    widgets/qcustomplot.cpp
 
 HEADERS += \
         mainwindow.h \
     static.h \
     widgets/clickablegs.h \
-    imgcalc.h
+    imgcalc.h \
+    widgets/qcustomplot.h
 
 FORMS += \
         mainwindow.ui
