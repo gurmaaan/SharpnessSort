@@ -220,6 +220,21 @@ void MainWindow::printSharpMask(QVector<QVector<int> > mask)
     qDebug() << "------------------";
 }
 
+int MainWindow::sumOfPosMaskKoeff(QVector<QVector<int> > mask)
+{
+    int sum = 0;
+    for(int i = 0; i < mask.length(); i++)
+    {
+        QVector<int> row = mask.at(i);
+        for(int j = 0; j < row.length(); j++)
+        {
+            if(row.at(j) > 0)
+                sum++;
+        }
+    }
+    return sum;
+}
+
 int MainWindow::validComponent(int c)
 {
     int outC = 0;
@@ -375,4 +390,5 @@ void MainWindow::on_calckSharp_btn_clicked()
 {
     QVector< QVector<int> > mask = genSharpMask(ui->sharpMask_width_sb->value(), ui->sharpMask_height_sb->value(), ui->sharpMascType_cb->currentIndex());
     printSharpMask(mask);
+    qDebug() << sumOfPosMaskKoeff(mask);
 }

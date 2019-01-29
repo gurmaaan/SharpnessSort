@@ -91,6 +91,7 @@ private:
     QColor validColor(int r = 0, int g = 0, int b = 0);
     QVector< QVector<int> > genSharpMask(int w = 2, int h = 2, int type = 0);
     void printSharpMask(QVector< QVector<int> > mask);
+    int sumOfPosMaskKoeff(QVector< QVector<int> > mask);
     int validComponent(int c = 0);
 };
 
