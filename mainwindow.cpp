@@ -71,7 +71,6 @@ void MainWindow::on_action_openDir_triggered()
     _model->appendRow(sharpRow);
     _model->setVerticalHeaderItem(2, vertHeader2);
     setActiveImg(0);
-    setBaseImgPreview(_images.first());
     setBaseIndex(0);
 }
 
@@ -125,12 +124,6 @@ void MainWindow::setActiveImg(QImage img)
     _viewScene->addItem(pixmapItem);
 }
 
-void MainWindow::setBaseImgPreview(QImage img)
-{
-    QPixmap pixMap = QPixmap::fromImage(img);
-    ui->baseImagPrevie_lbl->setPixmap(pixMap.scaled(250, 150));
-}
-
 void MainWindow::scaleImage(double k)
 {
     Q_UNUSED(k);
@@ -177,6 +170,56 @@ QColor MainWindow::validColor(int r, int g, int b)
     return outClr;
 }
 
+QVector<QVector<int> > MainWindow::genSharpMask(int w, int h, int type)
+{
+    QVector<QVector<int> > mask;
+    int halfW = w / 2;
+    int halfH = h / 2;
+    if(type ==0)
+    {
+        for(int j = 0; j < h; j++)
+        {
+            QVector<int> row;
+            for(int i = 0; i < w; i++)
+            {
+                if(i < halfW)
+                    row << 1;
+                else
+                    row << -1;
+            }
+            mask << row;
+            row.clear();
+        }
+    }
+    else
+    {
+        for(int j = 0; j < h; j++)
+        {
+            QVector<int> row;
+            for(int i = 0; i < w; i++)
+            {
+                if(j < halfH)
+                    row << 1;
+                else
+                    row << -1;
+            }
+            mask << row;
+            row.clear();
+        }
+    }
+    return mask;
+}
+
+void MainWindow::printSharpMask(QVector<QVector<int> > mask)
+{
+    qDebug() << "------ mask ------";
+    for(int i = 0; i < mask.length(); i++)
+    {
+        qDebug() << mask.at(i);
+    }
+    qDebug() << "------------------";
+}
+
 int MainWindow::validComponent(int c)
 {
     int outC = 0;
@@ -220,7 +263,6 @@ void MainWindow::on_baseImg_cb_currentIndexChanged(int index)
     {
         QImage baseImg = _images.at(index);
         setBaseImage(baseImg);
-        setBaseImgPreview(baseImg);
         setBaseIndex(index);
     }
 }
@@ -327,4 +369,10 @@ QImage MainWindow::getActiveImage() const
 void MainWindow::setActiveImage(const QImage &activeImage)
 {
     _activeImage = activeImage;
+}
+
+void MainWindow::on_calckSharp_btn_clicked()
+{
+    QVector< QVector<int> > mask = genSharpMask(ui->sharpMask_width_sb->value(), ui->sharpMask_height_sb->value(), ui->sharpMascType_cb->currentIndex());
+    printSharpMask(mask);
 }

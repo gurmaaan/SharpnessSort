@@ -64,6 +64,8 @@ private slots:
 
     void on_diffK_H_sldr_valueChanged(int value);
 
+    void on_calckSharp_btn_clicked();
+
 private:
     Ui::MainWindow *ui;
     QStandardItemModel *_model;
@@ -83,11 +85,12 @@ private:
     void setSB(QSpinBox *sb, int value);
     void setActiveImg(int index);
     void setActiveImg(QImage img);
-    void setBaseImgPreview(QImage img);
     void scaleImage(double k);
     QImage diffImages(QImage base, QImage current);
     void setVisibleRectCorners(QRectF visible);
     QColor validColor(int r = 0, int g = 0, int b = 0);
+    QVector< QVector<int> > genSharpMask(int w = 2, int h = 2, int type = 0);
+    void printSharpMask(QVector< QVector<int> > mask);
     int validComponent(int c = 0);
 };
 
