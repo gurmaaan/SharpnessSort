@@ -100,6 +100,8 @@ private:
     void printSharpMask(QVector< QVector<int> > mask);
     int sumOfPosMaskKoeff(QVector< QVector<int> > mask);
     int sharpKoeff(QVector< QVector<int> > mask, QImage img);
+    int maskAt(int x = 0, int y = 0);
+    QImage grayScaleImg(QImage img);
 };
 
 #endif // MAINWINDOW_H

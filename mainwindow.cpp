@@ -273,10 +273,33 @@ int MainWindow::sumOfPosMaskKoeff(QVector<QVector<int> > mask)
 
 int MainWindow::sharpKoeff(QVector<QVector<int> > mask, QImage img)
 {
-    Q_UNUSED(mask);
-    Q_UNUSED(img);
+    int maskW = mask.first().length();
+    int maskH = mask.length();
+
     int coeff = 0;
+    for(int j = 0; j < img.height() - maskH; j++)
+    {
+        for(int i = 0; i < img.width() - maskW; i++)
+        {
+            int gray = qGray(img.pixel(i, j));
+
+        }
+    }
     return  coeff;
+}
+
+QImage MainWindow::grayScaleImg(QImage img)
+{
+    QImage grayImg(img.size(), img.format());
+    for (int j = 0; j < img.height(); j++)
+    {
+        for (int i = 0; i < img.width(); i++)
+        {
+            int gray = qGray(img.pixel(i,j));
+            grayImg.setPixelColor(i, j, QColor(gray, gray, gray));
+        }
+    }
+    return grayImg;
 }
 
 int MainWindow::validComponent(int c)
@@ -430,6 +453,9 @@ void MainWindow::on_calckSharp_btn_clicked()
                                                 ui->sharpMascType_cb->currentIndex());
     printSharpMask(mask);
     qDebug() << "Число положительных коэффициентов:" << sumOfPosMaskKoeff(mask);
+
+    QImage gray = grayScaleImg(getActiveImage());
+    setActiveImg(gray);
 }
 
 void MainWindow::on_scale_sb_valueChanged(double arg1)
