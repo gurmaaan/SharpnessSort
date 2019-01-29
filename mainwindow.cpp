@@ -79,7 +79,7 @@ void MainWindow::on_action_openDir_triggered()
 
 void MainWindow::setupWidgets()
 {
-    ui->tabWidget->setCurrentIndex(1);
+
     _model = new QStandardItemModel;
     ui->tableView->setModel(_model);
 
@@ -121,8 +121,15 @@ void MainWindow::setActiveImg(int index)
         ui->tableView->selectColumn(index);
 
         QImage activeImg = _images.at(index);
-        setActiveImg(activeImg);
         QImage res = diffImages(_baseImage, activeImg);
+
+        double dWidth = static_cast<double>(activeImg.width());
+        double dNewWidth = dWidth * ui->scale_sb->value();
+        int newWidth = static_cast<int>(dNewWidth);
+
+        activeImg = activeImg.scaledToWidth(newWidth);
+        setActiveImg(activeImg);
+        res = res.scaledToWidth(newWidth);
         setImgDiff(res);
     }
 }
@@ -168,6 +175,7 @@ QImage MainWindow::diffImages(QImage base, QImage current)
             }
         }
     }
+    setDiffImg(resOutputImg);
     return resOutputImg;
 }
 
@@ -330,6 +338,7 @@ void MainWindow::setBaseImage(const QImage &value)
 
 void MainWindow::setImgDiff(QImage result)
 {
+    setDiffImg(result);
     _diffScene->clear();
     QPixmap pm(QPixmap::fromImage(result));
     QGraphicsPixmapItem *pmItem = new QGraphicsPixmapItem(pm);
@@ -377,26 +386,6 @@ void MainWindow::on_MainWindow_customContextMenuRequested(const QPoint &pos)
    menu->popup(ui->tableView->viewport()->mapToGlobal(pos));
 }
 
-void MainWindow::on_scale_sldr_sliderMoved(int position)
-{
-    double posD = static_cast<double>(position) / 10.0;
-    ui->scale_sb->setValue(posD);
-    if(_viewScene->items().count() > 0)
-    {
-        QImage img = _images.at(getActiveIndex());
-        if(position <= 5)
-        {
-//            QImage scaled = img.scaledToWidth(img.height() * position);
-//            QPixmap pixmap = QPixmap::fromImage(scaled);
-//            _viewScene->clear();
-
-//            QGraphicsPixmapItem *scaledItem = new QGraphicsPixmapItem(pixmap);
-//            _viewScene->addItem(scaledItem);
-        }
-        //QPixmap pm(QPixmap::fromImage(img.scaled(img.width() * position, img.height() * position)));
-    }
-}
-
 int MainWindow::getActiveIndex() const
 {
     return _activeIndex;
@@ -441,4 +430,41 @@ void MainWindow::on_calckSharp_btn_clicked()
                                                 ui->sharpMascType_cb->currentIndex());
     printSharpMask(mask);
     qDebug() << "Число положительных коэффициентов:" << sumOfPosMaskKoeff(mask);
+}
+
+void MainWindow::on_scale_sb_valueChanged(double arg1)
+{
+    //BUG : при прорутке слайдера в положительную сторону все отлично, при прокрутке в отрицательную сторону какая-то залупа происходит и все виснет
+    QImage activeImg = getActiveImage();
+    QImage diffImage = getDiffImg();
+
+    double dWidth = static_cast<double>(activeImg.width());
+    double dNewWidth = dWidth * arg1;
+    int newWidth = static_cast<int>(dNewWidth);
+    activeImg = activeImg.scaledToWidth(newWidth);
+
+    QPixmap activePixmap = QPixmap::fromImage(activeImg);
+    QPixmap diffPixmap = QPixmap::fromImage(diffImage);
+    QGraphicsPixmapItem *activePmIrtem = new QGraphicsPixmapItem(activePixmap);
+    QGraphicsPixmapItem *diffPmIrtem = new QGraphicsPixmapItem(diffPixmap);
+
+    _viewScene->clear();
+    _viewScene->addItem(activePmIrtem);
+    _diffScene->clear();
+    _diffScene->addItem(diffPmIrtem);
+}
+void MainWindow::on_scale_sldr_sliderMoved(int position)
+{
+    double dPosition = static_cast<double>(position);
+    ui->scale_sb->setValue(dPosition / 10.0);
+}
+
+QImage MainWindow::getDiffImg() const
+{
+    return _diffImg;
+}
+
+void MainWindow::setDiffImg(const QImage &diffImg)
+{
+    _diffImg = diffImg;
 }

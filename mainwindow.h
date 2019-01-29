@@ -32,16 +32,17 @@ public:
     ~MainWindow();
 
     QImage getBaseImage() const;
-    void setBaseImage(const QImage &value);
-
     int getActiveIndex() const;
-    void setActiveIndex(int activeIndex);
-
     QStringList getImgNames() const;
-    void setImgNames(const QStringList &imgNames);
-
     QImage getActiveImage() const;
+
+    void setBaseImage(const QImage &value);
+    void setActiveIndex(int activeIndex);
+    void setImgNames(const QStringList &imgNames);
     void setActiveImage(const QImage &activeImage);
+
+    QImage getDiffImg() const;
+    void setDiffImg(const QImage &diffImg);
 
 signals:
     void resultCalced(QImage result);
@@ -62,9 +63,10 @@ private slots:
     void on_baseImg_cb_currentIndexChanged(int index);
     void on_tableView_clicked(const QModelIndex &index);
     void on_MainWindow_customContextMenuRequested(const QPoint &pos);
-    void on_scale_sldr_sliderMoved(int position);
     void on_diffK_H_sldr_valueChanged(int value);
     void on_calckSharp_btn_clicked();
+    void on_scale_sb_valueChanged(double arg1);
+    void on_scale_sldr_sliderMoved(int position);
 
 private:
     Ui::MainWindow *ui;
@@ -74,6 +76,7 @@ private:
     QGraphicsScene *_diffScene;
     QList<QImage> _images;
     QImage _baseImage;
+    QImage _diffImg;
     int _baseIndex;
     QImage _activeImage;
     int _activeIndex;
