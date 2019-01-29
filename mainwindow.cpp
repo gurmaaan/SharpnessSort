@@ -28,9 +28,9 @@ void MainWindow::on_action_openDir_triggered()
     setImgNames(imgNames);
 
     ui->dir_progress->setMaximum(imgNames.count());
-    ui->tableView->setIconSize(QSize(100, 100));
-    ui->tableView->setRowHeight(0, 100);
+    ui->tableView->setIconSize(QSize(TABLE_IC_SIZE,TABLE_IC_SIZE));
 
+    QList<QStandardItem*> numRow;
     QList<QStandardItem*> imgRow;
     QList<QStandardItem*> nameRow;
     QList<QStandardItem*> sharpRow;
@@ -46,36 +46,38 @@ void MainWindow::on_action_openDir_triggered()
         _images.append(img);
         QStandardItem *imgItem = new QStandardItem;
         QStandardItem *nameItem = new QStandardItem(_imgNames.at(i));
+        QStandardItem *numItem = new QStandardItem(QString::number(i+1));
+        numItem->setData(Qt::AlignCenter, Qt::TextAlignmentRole);
         //TODO: коэффициент резкости
         QStandardItem *sharpItem = new QStandardItem(QString::number(0));
         nameItem->setData(Qt::AlignCenter, Qt::TextAlignmentRole);
 
-        imgItem->setSizeHint(QSize(100, 100));
         imgItem->setIcon(QPixmap::fromImage(img));
+        imgItem->setData(Qt::AlignCenter, Qt::TextAlignmentRole);
 
+        numRow << numItem;
         imgRow << imgItem;
         nameRow << nameItem;
         sharpRow << sharpItem;
 
         ui->dir_progress->setValue(i+1);
     }
-
     ui->baseImg_cb->addItems(_imgNames);
-    _model->appendRow(imgRow);
-    QStandardItem *vertHeader0 = new QStandardItem("Изображение");
-    _model->setVerticalHeaderItem(0, vertHeader0);
-    QStandardItem *vertHeader1 = new QStandardItem("Имя");
-    _model->appendRow(nameRow);
-    _model->setVerticalHeaderItem(1, vertHeader1);
-    QStandardItem *vertHeader2 = new QStandardItem("Критерий резкости");
-    _model->appendRow(sharpRow);
-    _model->setVerticalHeaderItem(2, vertHeader2);
+
+    setupModelRow(_model, numRow, 0, "Номер");
+    setupModelRow(_model, imgRow, 1, "Изображение");
+    setupModelRow(_model, nameRow, 2, "Имя");
+    setupModelRow(_model, sharpRow, 3, "Критерий резкости");
+
     setActiveImg(0);
     setBaseIndex(0);
+
+    ui->tableView->setRowHeight(1, TABLE_IC_SIZE);
 }
 
 void MainWindow::setupWidgets()
 {
+    ui->tabWidget->setCurrentIndex(1);
     _model = new QStandardItemModel;
     ui->tableView->setModel(_model);
 
@@ -110,8 +112,7 @@ void MainWindow::setActiveImg(int index)
         QImage activeImg = _images.at(index);
         setActiveImg(activeImg);
         QImage res = diffImages(_baseImage, activeImg);
-        if(ui->diffK_sb->value() != 0)
-            setImgDiff(res);
+        setImgDiff(res);
     }
 }
 
@@ -128,6 +129,13 @@ void MainWindow::scaleImage(double k)
 {
     Q_UNUSED(k);
     //TODO : image scaling
+}
+
+void MainWindow::setupModelRow(QStandardItemModel *model, QList<QStandardItem *> row, int rowNum, QString headerName)
+{
+    QStandardItem *verticalHeader = new QStandardItem(headerName);
+    model->appendRow(row);
+    model->setVerticalHeaderItem(rowNum, verticalHeader);
 }
 
 QImage MainWindow::diffImages(QImage base, QImage current)
@@ -157,7 +165,7 @@ void MainWindow::setVisibleRectCorners(QRectF visible)
     setSB(ui->tlx_sb, static_cast<int>(visible.topLeft().x()));
     setSB(ui->tly_sb, static_cast<int>(visible.topLeft().y()));
     setSB(ui->brx_sb, static_cast<int>(visible.bottomRight().x()));
-    setSB(ui->brx_sb, static_cast<int>(visible.bottomRight().y()));
+    setSB(ui->bry_sb, static_cast<int>(visible.bottomRight().y()));
 }
 
 QColor MainWindow::validColor(int r, int g, int b)
@@ -244,6 +252,12 @@ int MainWindow::sumOfPosMaskKoeff(QVector<QVector<int> > mask)
     return sum;
 }
 
+int MainWindow::sharpKoeff(QVector<QVector<int> > mask, QImage img)
+{
+    int coeff = 0;
+    return  coeff;
+}
+
 int MainWindow::validComponent(int c)
 {
     int outC = 0;
@@ -313,13 +327,13 @@ void MainWindow::setBaseIndex(int baseIndex)
 {
     for(int i = 0; i < _model->columnCount(); i++)
     {
-       QModelIndex mIndex(_model->index(1, i));
+       QModelIndex mIndex(_model->index(2, i));
        if(mIndex.data(Qt::DisplayRole).toString().startsWith(BASE_IMG_STR))
            _model->setData(mIndex, _imgNames.at(i), Qt::DisplayRole);
        _model->setData(mIndex, QColor(Qt::white), Qt::BackgroundColorRole);
     }
 
-    QModelIndex mBaseIndex(_model->index(1, baseIndex));
+    QModelIndex mBaseIndex(_model->index(2, baseIndex));
     _model->setData(mBaseIndex, QColor(Qt::green), Qt::BackgroundColorRole);
     _model->setData(mBaseIndex, QString(BASE_IMG_STR) + _imgNames.at(baseIndex), Qt::DisplayRole);
 }

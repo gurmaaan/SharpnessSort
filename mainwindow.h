@@ -86,13 +86,17 @@ private:
     void setActiveImg(int index);
     void setActiveImg(QImage img);
     void scaleImage(double k);
+    void setupModelRow(QStandardItemModel *model, QList<QStandardItem*> row, int rowNum = 0, QString headerName = "Header");
+    //----------------------------------------------
     QImage diffImages(QImage base, QImage current);
     void setVisibleRectCorners(QRectF visible);
     QColor validColor(int r = 0, int g = 0, int b = 0);
+    int validComponent(int c = 0);
+    //---------------------------------------------
     QVector< QVector<int> > genSharpMask(int w = 2, int h = 2, int type = 0);
     void printSharpMask(QVector< QVector<int> > mask);
     int sumOfPosMaskKoeff(QVector< QVector<int> > mask);
-    int validComponent(int c = 0);
+    int sharpKoeff(QVector< QVector<int> > mask, QImage img);
 };
 
 #endif // MAINWINDOW_H
