@@ -3,6 +3,7 @@
 
 #include <QVector>
 #include <QDebug>
+#include <QSize>
 
 enum class MaskType
 {
@@ -13,24 +14,24 @@ enum class MaskType
 class Mask
 {
 public:
-    Mask(int w, int h, MaskType mt);
+    Mask(QSize size, MaskType mt);
+    Mask(QSize size, int mt);
     QVector<QVector<int> > mask() const;
-    int width() const;
-    int height() const;
-
+    QSize size() const;
     void setMask(const QVector<QVector<int> > &mask);
-    void setWidth(int width);
-    void setHeight(int height);
-
-    int maskType() const;
-    void setMaskType(MaskType mt);
+    //
+    void print();
+    int positiveSum();
+    int maskAt(int x, int y);
 
 private:
-    int _width;
-    int _height;
+    QSize _size;
     MaskType _maskType;
     QVector< QVector<int> > _mask;
     //
+    void setSize(const QSize &size);
+    QVector< QVector<int> > generator(int w, int h, MaskType t);
+    MaskType typeProvider(int t);
 };
 
 #endif // MASK_H

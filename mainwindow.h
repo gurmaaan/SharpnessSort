@@ -17,6 +17,7 @@
 #include <algorithm>
 //
 #include "static.h"
+#include "mask.h"
 #include "widgets/clickablegs.h"
 
 namespace Ui {
@@ -96,11 +97,7 @@ private:
     QColor validColor(int r = 0, int g = 0, int b = 0);
     int validComponent(int c = 0);
     //---------------------------------------------
-    QVector< QVector<int> > genSharpMask(int w = 2, int h = 2, int type = 0);
-    void printSharpMask(QVector< QVector<int> > mask);
-    int sumOfPosMaskKoeff(QVector< QVector<int> > mask);
     int sharpKoeff(QVector< QVector<int> > mask, QImage img);
-    int maskAt(int x = 0, int y = 0);
     QImage grayScaleImg(QImage img);
 };
 

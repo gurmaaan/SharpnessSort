@@ -97,6 +97,14 @@ void MainWindow::connectAll()
     //-------------------------------------
     connect(ui->view_gv->horizontalScrollBar(), &QScrollBar::sliderMoved,
             this, &MainWindow::updateCorners);
+    connect(ui->view_gv->verticalScrollBar(), &QScrollBar::valueChanged,
+            this, &MainWindow::updateCorners);
+    connect(ui->diff_gv->verticalScrollBar(), &QScrollBar::valueChanged,
+            this, &MainWindow::updateDiffCorners);
+    connect(ui->view_gv->horizontalScrollBar(), &QScrollBar::valueChanged,
+            this, &MainWindow::updateCorners);
+    connect(ui->diff_gv->horizontalScrollBar(), &QScrollBar::valueChanged,
+            this, &MainWindow::updateDiffCorners);
     connect(ui->view_gv->verticalScrollBar(), &QScrollBar::sliderMoved,
             this, &MainWindow::updateCorners);
     connect(ui->diff_gv->horizontalScrollBar(), &QScrollBar::sliderMoved,
@@ -197,86 +205,13 @@ QColor MainWindow::validColor(int r, int g, int b)
     return outClr;
 }
 
-QVector<QVector<int> > MainWindow::genSharpMask(int w, int h, int type)
-{
-    QVector<QVector<int> > mask;
-    int halfW = w / 2;
-    int halfH = h / 2;
-    if(type ==0)
-    {
-        for(int j = 0; j < h; j++)
-        {
-            QVector<int> row;
-            for(int i = 0; i < w; i++)
-            {
-                if(i < halfW)
-                    row << 1;
-                else
-                    row << -1;
-            }
-            mask << row;
-            row.clear();
-        }
-    }
-    else
-    {
-        for(int j = 0; j < h; j++)
-        {
-            QVector<int> row;
-            for(int i = 0; i < w; i++)
-            {
-                if(j < halfH)
-                    row << 1;
-                else
-                    row << -1;
-            }
-            mask << row;
-            row.clear();
-        }
-    }
-    return mask;
-}
-
-void MainWindow::printSharpMask(QVector<QVector<int> > mask)
-{
-    qDebug() << "------ mask ------";
-    for(int i = 0; i < mask.length(); i++)
-    {
-        QString rowStr ="";
-        QVector<int> row = mask.at(i);
-        for(int j = 0; j < row.length(); j++)
-        {
-            if(row.at(j) == 1)
-                rowStr = rowStr + QString(" 1");
-            else
-                rowStr = rowStr + QString("-1");
-        }
-        qDebug().noquote() << rowStr;
-    }
-    qDebug() << "------------------";
-}
-
-int MainWindow::sumOfPosMaskKoeff(QVector<QVector<int> > mask)
-{
-    int sum = 0;
-    for(int i = 0; i < mask.length(); i++)
-    {
-        QVector<int> row = mask.at(i);
-        for(int j = 0; j < row.length(); j++)
-        {
-            if(row.at(j) > 0)
-                sum++;
-        }
-    }
-    return sum;
-}
-
 int MainWindow::sharpKoeff(QVector<QVector<int> > mask, QImage img)
 {
     int maskW = mask.first().length();
     int maskH = mask.length();
 
     int coeff = 0;
+
     for(int j = 0; j < img.height() - maskH; j++)
     {
         for(int i = 0; i < img.width() - maskW; i++)
@@ -448,12 +383,8 @@ void MainWindow::setActiveImage(const QImage &activeImage)
 
 void MainWindow::on_calckSharp_btn_clicked()
 {
-    QVector< QVector<int> > mask = genSharpMask(ui->sharpMask_width_sb->value(),
-                                                ui->sharpMask_height_sb->value(),
-                                                ui->sharpMascType_cb->currentIndex());
-    printSharpMask(mask);
-    qDebug() << "Число положительных коэффициентов:" << sumOfPosMaskKoeff(mask);
-
+    Mask mask(QSize(ui->sharpMask_width_sb->value(), ui->sharpMask_height_sb->value()), ui->sharpMascType_cb->currentIndex());
+    mask.print();
     QImage gray = grayScaleImg(getActiveImage());
     setActiveImg(gray);
 }
