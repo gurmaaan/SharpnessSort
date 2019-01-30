@@ -99,6 +99,7 @@ private:
     //---------------------------------------------
     int sharpKoeff(QVector< QVector<int> > mask, QImage img);
     QImage grayScaleImg(QImage img);
+    void calcBoxSize();
 };
 
 #endif // MAINWINDOW_H

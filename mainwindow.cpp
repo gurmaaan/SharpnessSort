@@ -189,10 +189,10 @@ QImage MainWindow::diffImages(QImage base, QImage current)
 
 void MainWindow::setVisibleRectCorners(QRectF visible)
 {
-    setSB(ui->tlx_sb, static_cast<int>(visible.topLeft().x()));
-    setSB(ui->tly_sb, static_cast<int>(visible.topLeft().y()));
-    setSB(ui->brx_sb, static_cast<int>(visible.bottomRight().x()));
-    setSB(ui->bry_sb, static_cast<int>(visible.bottomRight().y()));
+    setSB(ui->tlx_sb, static_cast<int>(visible.topLeft().x() / 10));
+    setSB(ui->tly_sb, static_cast<int>(visible.topLeft().y() / 10));
+    setSB(ui->brx_sb, static_cast<int>(visible.bottomRight().x() / 10));
+    setSB(ui->bry_sb, static_cast<int>(visible.bottomRight().y() / 10));
 }
 
 QColor MainWindow::validColor(int r, int g, int b)
@@ -216,7 +216,7 @@ int MainWindow::sharpKoeff(QVector<QVector<int> > mask, QImage img)
     {
         for(int i = 0; i < img.width() - maskW; i++)
         {
-            int gray = qGray(img.pixel(i, j));
+            //int gray = qGray(img.pixel(i, j));
 
         }
     }
@@ -235,6 +235,15 @@ QImage MainWindow::grayScaleImg(QImage img)
         }
     }
     return grayImg;
+}
+
+void MainWindow::calcBoxSize()
+{
+    QPoint p1(ui->tlx_sb->value(), ui->tly_sb->value());
+    QPoint p2(ui->brx_sb->value(), ui->bry_sb->value());
+    QRect boxRect(p1,p2);
+    setSB(ui->viewSizeW_sb, boxRect.width());
+    setSB(ui->viewSizeH_sb, boxRect.height());
 }
 
 int MainWindow::validComponent(int c)
@@ -322,12 +331,14 @@ void MainWindow::updateCorners(int scrollBarPos)
 {
     Q_UNUSED(scrollBarPos);
     setVisibleRectCorners(ui->view_gv->mapToScene(ui->view_gv->viewport()->geometry()).boundingRect());
+    calcBoxSize();
 }
 
 void MainWindow::updateDiffCorners(int scrollBarPos)
 {
     Q_UNUSED(scrollBarPos);
     setVisibleRectCorners(ui->diff_gv->mapToScene(ui->diff_gv->viewport()->geometry()).boundingRect());
+    calcBoxSize();
 }
 
 void MainWindow::on_tableView_clicked(const QModelIndex &index)
@@ -409,6 +420,8 @@ void MainWindow::on_scale_sb_valueChanged(double arg1)
     _viewScene->addItem(activePmIrtem);
     _diffScene->clear();
     _diffScene->addItem(diffPmIrtem);
+    updateCorners(0);
+    updateDiffCorners(0);
 }
 void MainWindow::on_scale_sldr_sliderMoved(int position)
 {
