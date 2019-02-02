@@ -18,7 +18,7 @@
 //
 #include "static.h"
 #include "mask.h"
-#include "widgets/clickablegs.h"
+#include "widgets/graphicsviewrectitem.h"
 
 namespace Ui {
 class MainWindow;
@@ -53,6 +53,7 @@ public slots:
     void setBaseIndex(int baseIndex);
     void updateCorners(int scrollBarPos);
     void updateDiffCorners(int scrollBarPos);
+    void updateCurosor(QCursor cursor);
 
 private slots:
     void on_action_openDir_triggered();
@@ -63,17 +64,14 @@ private slots:
     void on_action_last_triggered();
     void on_baseImg_cb_currentIndexChanged(int index);
     void on_tableView_clicked(const QModelIndex &index);
-    void on_MainWindow_customContextMenuRequested(const QPoint &pos);
-    void on_diffK_H_sldr_valueChanged(int value);
     void on_calckSharp_btn_clicked();
-    void on_scale_sb_valueChanged(double arg1);
-    void on_scale_sldr_sliderMoved(int position);
+    void on_areaSetup_btn_clicked(bool checked);
 
 private:
     Ui::MainWindow *ui;
     QStandardItemModel *_model;
     QStringList _imgNames;
-    ClickableGS *_viewScene;
+    QGraphicsScene *_viewScene;
     QGraphicsScene *_diffScene;
     QList<QImage> _images;
     QImage _baseImage;
@@ -97,9 +95,8 @@ private:
     QColor validColor(int r = 0, int g = 0, int b = 0);
     int validComponent(int c = 0);
     //---------------------------------------------
-    int sharpKoeff(QVector< QVector<int> > mask, QImage img);
+    int sharpKoeff(Mask mask, QImage img);
     QImage grayScaleImg(QImage img);
-    void calcBoxSize();
 };
 
 #endif // MAINWINDOW_H

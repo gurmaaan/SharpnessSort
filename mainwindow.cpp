@@ -22,9 +22,10 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_action_openDir_triggered()
 {
-    QDir imgDir(TEST_DIR);
-    ui->dirPath_le->setText(QFileDialog::getExistingDirectory(nullptr, "Выберите папку", imgDir.absolutePath()));
-    QStringList imgNames = imgDir.entryList(QStringList() << "*.bmp" << "*.bmp",QDir::Files);
+    QString pathStr = QFileDialog::getExistingDirectory(nullptr, "Выберите папку", TEST_DIR);
+    QDir imgDir(pathStr);
+    ui->dirPath_le->setText(pathStr);
+    QStringList imgNames = imgDir.entryList(QStringList() << IMG_FORMAT << IMG_FORMAT,QDir::Files);
     setImgNames(imgNames);
 
     ui->dir_progress->setMaximum(imgNames.count());
@@ -38,29 +39,32 @@ void MainWindow::on_action_openDir_triggered()
     {
         setSB(ui->imgCnt_sb, i);
 
-        QString imgPath = QString(TEST_DIR) + QDir::separator() + _imgNames.at(i);
+        QString imgPath = QString(pathStr) + QDir::separator() + _imgNames.at(i);
         QImage img(imgPath);
 
-        setSB(ui->imgSizeH_sb, img.height());
-        setSB(ui->imgSizeW_sb, img.width());
-        _images.append(img);
-        QStandardItem *imgItem = new QStandardItem;
-        QStandardItem *nameItem = new QStandardItem(_imgNames.at(i));
-        QStandardItem *numItem = new QStandardItem(QString::number(i+1));
-        numItem->setData(Qt::AlignCenter, Qt::TextAlignmentRole);
-        //TODO: коэффициент резкости
-        QStandardItem *sharpItem = new QStandardItem(QString::number(0));
-        nameItem->setData(Qt::AlignCenter, Qt::TextAlignmentRole);
+        if(!img.isNull())
+        {
+            setSB(ui->imgSizeH_sb, img.height());
+            setSB(ui->imgSizeW_sb, img.width());
+            _images.append(img);
+            QStandardItem *imgItem = new QStandardItem;
+            QStandardItem *nameItem = new QStandardItem(_imgNames.at(i));
+            QStandardItem *numItem = new QStandardItem(QString::number(i+1));
+            numItem->setData(Qt::AlignCenter, Qt::TextAlignmentRole);
+            //TODO: коэффициент резкости
+            QStandardItem *sharpItem = new QStandardItem(QString::number(0));
+            nameItem->setData(Qt::AlignCenter, Qt::TextAlignmentRole);
 
-        imgItem->setIcon(QPixmap::fromImage(img));
-        imgItem->setData(Qt::AlignCenter, Qt::TextAlignmentRole);
+            imgItem->setIcon(QPixmap::fromImage(img));
+            imgItem->setData(Qt::AlignCenter, Qt::TextAlignmentRole);
 
-        numRow << numItem;
-        imgRow << imgItem;
-        nameRow << nameItem;
-        sharpRow << sharpItem;
+            numRow << numItem;
+            imgRow << imgItem;
+            nameRow << nameItem;
+            sharpRow << sharpItem;
 
-        ui->dir_progress->setValue(i+1);
+            ui->dir_progress->setValue(i+1);
+        }
     }
     ui->baseImg_cb->addItems(_imgNames);
 
@@ -70,6 +74,7 @@ void MainWindow::on_action_openDir_triggered()
     setupModelRow(_model, sharpRow, 3, "Критерий резкости");
 
     setActiveImg(0);
+    ui->view_gv->fitInView(_viewScene->sceneRect());
     setBaseIndex(0);
 
     ui->tableView->setRowHeight(1, TABLE_IC_SIZE);
@@ -79,11 +84,10 @@ void MainWindow::on_action_openDir_triggered()
 
 void MainWindow::setupWidgets()
 {
-
     _model = new QStandardItemModel;
     ui->tableView->setModel(_model);
 
-    _viewScene = new ClickableGS;
+    _viewScene = new QGraphicsScene;
     ui->view_gv->setScene(_viewScene);
 
     _diffScene = new QGraphicsScene;
@@ -111,6 +115,7 @@ void MainWindow::connectAll()
             this, &MainWindow::updateDiffCorners);
     connect(ui->diff_gv->verticalScrollBar(), &QScrollBar::sliderMoved,
             this, &MainWindow::updateDiffCorners);
+    //-----------------------------
 }
 
 void MainWindow::setSB(QSpinBox *sb, int value)
@@ -125,6 +130,7 @@ void MainWindow::setActiveImg(int index)
     if( (index >= 0) && (index < _images.count()) )
     {
         setVisibleRectCorners(ui->view_gv->mapToScene(ui->view_gv->viewport()->geometry()).boundingRect());
+
         setActiveIndex(index);
         ui->tableView->selectColumn(index);
 
@@ -205,22 +211,53 @@ QColor MainWindow::validColor(int r, int g, int b)
     return outClr;
 }
 
-int MainWindow::sharpKoeff(QVector<QVector<int> > mask, QImage img)
+int MainWindow::sharpKoeff(Mask mask, QImage img)
 {
-    int maskW = mask.first().length();
-    int maskH = mask.length();
+    int maskW = mask.size().width();
+    int maskH = mask.size().height();
 
-    int coeff = 0;
-
+    QImage grayImg = grayScaleImg(img);
+    QVector<int> kVals;
     for(int j = 0; j < img.height() - maskH; j++)
     {
+        int coeff = 0;
         for(int i = 0; i < img.width() - maskW; i++)
         {
-            //int gray = qGray(img.pixel(i, j));
+            QVector<QVector<int>> newMask;
+            //считаю новую маску
+            for(int ii = 0; ii < maskW; ii++)
+            {
+                QVector<int> newMaskRow;
+                for(int jj = 0; jj < maskH; jj++)
+                {
+                    int mk = mask.maskAt(ii, jj) * grayImg.pixelColor(i+ii, j+jj).red();
+                    newMaskRow.append(mk);
+                }
+                newMask << newMaskRow;
+                newMaskRow.clear();
+            }
 
+            long int sum = 0;
+            long int posSum = 0;
+
+            //нахожу сумму маски и сумму ее положительных элементов
+            for(int jj = 0; jj < newMask.length(); jj++)
+            {
+                QVector<int> newMaskRow = newMask.at(jj);
+                for(int ii = 0; ii < newMaskRow.length(); ii++)
+                {
+                    int nmk = newMaskRow.at(ii);
+                    sum += nmk;
+                    if(nmk > 0)
+                        posSum += nmk;
+                }
+            }
+            coeff = posSum / sum;
+            kVals.append(coeff);
         }
     }
-    return  coeff;
+    int max = *std::max_element(kVals.begin(), kVals.end());
+    return  max;
 }
 
 QImage MainWindow::grayScaleImg(QImage img)
@@ -235,15 +272,6 @@ QImage MainWindow::grayScaleImg(QImage img)
         }
     }
     return grayImg;
-}
-
-void MainWindow::calcBoxSize()
-{
-    QPoint p1(ui->tlx_sb->value(), ui->tly_sb->value());
-    QPoint p2(ui->brx_sb->value(), ui->bry_sb->value());
-    QRect boxRect(p1,p2);
-    setSB(ui->viewSizeW_sb, boxRect.width());
-    setSB(ui->viewSizeH_sb, boxRect.height());
 }
 
 int MainWindow::validComponent(int c)
@@ -331,28 +359,22 @@ void MainWindow::updateCorners(int scrollBarPos)
 {
     Q_UNUSED(scrollBarPos);
     setVisibleRectCorners(ui->view_gv->mapToScene(ui->view_gv->viewport()->geometry()).boundingRect());
-    calcBoxSize();
 }
 
 void MainWindow::updateDiffCorners(int scrollBarPos)
 {
     Q_UNUSED(scrollBarPos);
     setVisibleRectCorners(ui->diff_gv->mapToScene(ui->diff_gv->viewport()->geometry()).boundingRect());
-    calcBoxSize();
+}
+
+void MainWindow::updateCurosor(QCursor cursor)
+{
+    setCursor(cursor);
 }
 
 void MainWindow::on_tableView_clicked(const QModelIndex &index)
 {
    setActiveImg(index.column());
-}
-
-void MainWindow::on_MainWindow_customContextMenuRequested(const QPoint &pos)
-{
-    //TODO : доделать меню
-   QMenu *menu = new QMenu(this);
-   QAction *setActiveAction = new QAction("Установить опорным", this);
-   menu->addAction(setActiveAction);
-   menu->popup(ui->tableView->viewport()->mapToGlobal(pos));
 }
 
 int MainWindow::getActiveIndex() const
@@ -396,37 +418,8 @@ void MainWindow::on_calckSharp_btn_clicked()
 {
     Mask mask(QSize(ui->sharpMask_width_sb->value(), ui->sharpMask_height_sb->value()), ui->sharpMascType_cb->currentIndex());
     mask.print();
-    QImage gray = grayScaleImg(getActiveImage());
-    setActiveImg(gray);
-}
-
-void MainWindow::on_scale_sb_valueChanged(double arg1)
-{
-    //BUG : при прорутке слайдера в положительную сторону все отлично, при прокрутке в отрицательную сторону какая-то залупа происходит и все виснет
-    QImage activeImg = getActiveImage();
-    QImage diffImage = getDiffImg();
-
-    double dWidth = static_cast<double>(activeImg.width());
-    double dNewWidth = dWidth * arg1;
-    int newWidth = static_cast<int>(dNewWidth);
-    activeImg = activeImg.scaledToWidth(newWidth);
-
-    QPixmap activePixmap = QPixmap::fromImage(activeImg);
-    QPixmap diffPixmap = QPixmap::fromImage(diffImage);
-    QGraphicsPixmapItem *activePmIrtem = new QGraphicsPixmapItem(activePixmap);
-    QGraphicsPixmapItem *diffPmIrtem = new QGraphicsPixmapItem(diffPixmap);
-
-    _viewScene->clear();
-    _viewScene->addItem(activePmIrtem);
-    _diffScene->clear();
-    _diffScene->addItem(diffPmIrtem);
-    updateCorners(0);
-    updateDiffCorners(0);
-}
-void MainWindow::on_scale_sldr_sliderMoved(int position)
-{
-    double dPosition = static_cast<double>(position);
-    ui->scale_sb->setValue(dPosition / 10.0);
+    for(QImage img : _images)
+        qDebug() << sharpKoeff(mask, img);
 }
 
 QImage MainWindow::getDiffImg() const
@@ -437,4 +430,14 @@ QImage MainWindow::getDiffImg() const
 void MainWindow::setDiffImg(const QImage &diffImg)
 {
     _diffImg = diffImg;
+}
+
+void MainWindow::on_areaSetup_btn_clicked(bool checked)
+{
+    if(checked)
+    {
+        GraphicsViewRectItem *viewRect = new GraphicsViewRectItem();
+        viewRect->setPos(50, 50);
+        _viewScene->addItem(viewRect);
+    }
 }

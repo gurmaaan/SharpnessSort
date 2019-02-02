@@ -27,16 +27,16 @@ CONFIG += c++11
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-        widgets/clickablegs.cpp \
         widgets/qcustomplot.cpp \
-    mask.cpp
+    mask.cpp \
+    widgets/graphicsviewrectitem.cpp
 
 HEADERS += \
         mainwindow.h \
         static.h \
-        widgets/clickablegs.h \
         widgets/qcustomplot.h \
-    mask.h
+    mask.h \
+    widgets/graphicsviewrectitem.h
 
 FORMS += \
         mainwindow.ui
