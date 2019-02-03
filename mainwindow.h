@@ -47,7 +47,7 @@ public:
 public slots:
     void setImgDiff(QImage result);
     void setBaseIndex(int baseIndex);
-    void receiveRect(QRectF rect);
+    void setVisibleRectCorners(QRectF visible);
 
 private slots:
     void on_action_openDir_triggered();
@@ -83,13 +83,11 @@ private:
     void setSB(QSpinBox *sb, int value);
     void setActiveImg(int index);
     void setActiveImg(QImage img);
-    void setupModelRow(QStandardItemModel *model, QList<QStandardItem*> row,
-                       int rowNum = 0, QString headerName = "Header");
+    void setupModelRow(QStandardItemModel *model, QList<QStandardItem*> row, int rowNum = 0, QString headerName = "Header");
     //
     void paintViewRect(double tlx, double tly, int w, int h);
     //----------------------------------------------
     QImage diffImages(QImage base, QImage current);
-    void setVisibleRectCorners(QRectF visible);
     QColor validColor(int r = 0, int g = 0, int b = 0);
     int validComponent(int c = 0);
     //---------------------------------------------

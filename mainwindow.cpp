@@ -66,10 +66,10 @@ void MainWindow::on_action_openDir_triggered()
     }
     ui->baseImg_cb->addItems(_imgNames);
 
-    setupModelRow(_model, numRow, 0, HEADER_NUM);
-    setupModelRow(_model, imgRow, 1, HEADER_IMG);
-    setupModelRow(_model, nameRow, 2, HEADER_NAME);
-    setupModelRow(_model, sharpRow, 3, HEADER_SHARP);
+    setupModelRow(_model, numRow, 0, QString(HEADER_NUM));
+    setupModelRow(_model, imgRow, 1, QString(HEADER_IMG));
+    setupModelRow(_model, nameRow, 2, QString(HEADER_NAME));
+    setupModelRow(_model, sharpRow, 3, QString(HEADER_SHARP));
 
     setActiveImg(0);
     int imgW = getActiveImage().width();
@@ -150,6 +150,7 @@ void MainWindow::paintViewRect(double tlx, double tly, int w, int h)
     _viewScene->addItem(pixmapItem);
     QRectF rect(tlx, tly, w, h);
     GraphicsViewRectItem *viewArea = new GraphicsViewRectItem(rect);
+    connect(viewArea, &GraphicsViewRectItem::posChanged, this, &MainWindow::setVisibleRectCorners);
     _viewScene->addItem(viewArea);
 }
 
@@ -178,10 +179,10 @@ QImage MainWindow::diffImages(QImage base, QImage current)
 
 void MainWindow::setVisibleRectCorners(QRectF visible)
 {
-    setSB(ui->tlx_sb, static_cast<int>(visible.topLeft().x() / 10));
-    setSB(ui->tly_sb, static_cast<int>(visible.topLeft().y() / 10));
-    setSB(ui->brx_sb, static_cast<int>(visible.bottomRight().x() / 10));
-    setSB(ui->bry_sb, static_cast<int>(visible.bottomRight().y() / 10));
+    setSB(ui->tlx_sb, static_cast<int>( visible.topLeft().x()     ) );
+    setSB(ui->tly_sb, static_cast<int>( visible.topLeft().y()     ) );
+    setSB(ui->brx_sb, static_cast<int>( visible.bottomRight().x() ) );
+    setSB(ui->bry_sb, static_cast<int>( visible.bottomRight().y() ) );
 }
 
 QColor MainWindow::validColor(int r, int g, int b)
@@ -336,11 +337,6 @@ void MainWindow::setBaseIndex(int baseIndex)
     QModelIndex mBaseIndex(_model->index(2, baseIndex));
     _model->setData(mBaseIndex, QColor(Qt::green), Qt::BackgroundColorRole);
     _model->setData(mBaseIndex, QString(BASE_IMG_STR) + _imgNames.at(baseIndex), Qt::DisplayRole);
-}
-
-void MainWindow::receiveRect(QRectF rect)
-{
-    qDebug() << rect;
 }
 
 void MainWindow::on_tableView_clicked(const QModelIndex &index)

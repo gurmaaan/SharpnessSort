@@ -28,7 +28,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="view_tab">
        <attribute name="title">
@@ -96,7 +96,7 @@
        <bool>false</bool>
       </attribute>
       <attribute name="verticalHeaderVisible">
-       <bool>false</bool>
+       <bool>true</bool>
       </attribute>
      </widget>
     </item>
@@ -128,8 +128,6 @@
     <addaction name="action_first"/>
     <addaction name="action_last"/>
     <addaction name="separator"/>
-    <addaction name="action_zoomIn"/>
-    <addaction name="action_zoomOut"/>
    </widget>
    <addaction name="menu_file"/>
    <addaction name="menu"/>
