@@ -37,12 +37,14 @@ public:
     QStringList getImgNames() const;
     QImage getActiveImage() const;
     QImage getDiffImg() const;
+    QRectF getVisibleAreaRect() const;
 
     void setBaseImage(const QImage &value);
     void setActiveIndex(int activeIndex);
     void setImgNames(const QStringList &imgNames);
     void setActiveImage(const QImage &activeImage);
     void setDiffImg(const QImage &diffImg);
+    void setVisibleAreaRect(const QRectF &visibleAreaRect);
 
 public slots:
     void setImgDiff(QImage result);
@@ -65,17 +67,20 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+
     QStandardItemModel *_model;
-    QStringList _imgNames;
     QGraphicsScene *_viewScene;
     QGraphicsScene *_diffScene;
+
+    QStringList _imgNames;
     QList<QImage> _images;
+    QList<QImage> _croppedImages;
+    QRectF _visibleAreaRect;
     QImage _baseImage;
     QImage _diffImg;
-    int _baseIndex;
     QImage _activeImage;
+    int _baseIndex;
     int _activeIndex;
-
     int _sharpIndex;
     //
     void setupWidgets();

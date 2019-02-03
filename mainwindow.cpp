@@ -83,7 +83,7 @@ void MainWindow::on_action_openDir_triggered()
     ui->areaH_sldr->setValue(imgH / 10);
     ui->areaW_sldr->setValue(imgW / 10);
     setBaseIndex(0);
-
+    ui->scale_sb->setValue(1.0);
     ui->tableView->setRowHeight(1, TABLE_IC_SIZE);
 }
 
@@ -179,6 +179,7 @@ QImage MainWindow::diffImages(QImage base, QImage current)
 
 void MainWindow::setVisibleRectCorners(QRectF visible)
 {
+    setVisibleAreaRect(visible);
     setSB(ui->tlx_sb, static_cast<int>( visible.topLeft().x()     ) );
     setSB(ui->tly_sb, static_cast<int>( visible.topLeft().y()     ) );
     setSB(ui->brx_sb, static_cast<int>( visible.bottomRight().x() ) );
@@ -406,10 +407,32 @@ void MainWindow::on_areaSetup_btn_clicked(bool checked)
         double tlx = 0.0, tly = 0.0;
         if(_viewScene->items().count() > 1)
         {
-            tlx = _viewScene->items().last()->pos().x();
-            tly = _viewScene->items().last()->pos().y();
+            tlx = _viewScene->items().first()->pos().x();
+            tly = _viewScene->items().first()->pos().y();
         }
         paintViewRect(tlx, tly, ui->areaW_sb->value(), ui->areaH_sb->value());
+    }
+    else
+    {
+        if(_viewScene->items().count() > 1)
+            _viewScene->removeItem(_viewScene->items().first());
+
+        double imgH = static_cast<double>(getActiveImage().height());
+        double rectH = getVisibleAreaRect().height();
+        ui->scale_sb->setValue(rectH / imgH);
+        for(int i = 0 ; i < _images.length(); i++)
+        {
+            QImage cropped = _images.at(i).copy(getVisibleAreaRect().toRect());
+            _croppedImages << cropped;
+            QPixmap pixmap = QPixmap::fromImage(cropped);
+            _model->item(1, i)->setIcon(pixmap);
+        }
+        _images.clear();
+        for(QImage img : _croppedImages)
+            _images << img;
+        setActiveImg(0);
+        setBaseImage(_images.at(0));
+        ui->view_gv->fitInView(getVisibleAreaRect());
     }
 }
 
@@ -429,4 +452,14 @@ void MainWindow::on_areaH_sb_valueChanged(int arg1)
                       _viewScene->items().first()->pos().y(),
                       static_cast<int>(_viewScene->items().first()->boundingRect().width()),
                       arg1);
+}
+
+QRectF MainWindow::getVisibleAreaRect() const
+{
+    return _visibleAreaRect;
+}
+
+void MainWindow::setVisibleAreaRect(const QRectF &visibleAreaRect)
+{
+    _visibleAreaRect = visibleAreaRect;
 }
