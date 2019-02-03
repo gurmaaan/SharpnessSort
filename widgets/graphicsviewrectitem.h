@@ -17,7 +17,9 @@ public:
     GraphicsViewRectItem(QRectF boundingRect);
     ~GraphicsViewRectItem();
 
+
 signals:
+    void posChanged(QRectF rect);
 
 private:
     QRectF _boundingRect;

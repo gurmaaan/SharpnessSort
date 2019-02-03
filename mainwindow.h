@@ -36,24 +36,18 @@ public:
     int getActiveIndex() const;
     QStringList getImgNames() const;
     QImage getActiveImage() const;
+    QImage getDiffImg() const;
 
     void setBaseImage(const QImage &value);
     void setActiveIndex(int activeIndex);
     void setImgNames(const QStringList &imgNames);
     void setActiveImage(const QImage &activeImage);
-
-    QImage getDiffImg() const;
     void setDiffImg(const QImage &diffImg);
-
-signals:
-    void resultCalced(QImage result);
 
 public slots:
     void setImgDiff(QImage result);
     void setBaseIndex(int baseIndex);
-    void updateCorners(int scrollBarPos);
-    void updateDiffCorners(int scrollBarPos);
-    void updateCurosor(QCursor cursor);
+    void receiveRect(QRectF rect);
 
 private slots:
     void on_action_openDir_triggered();
@@ -66,6 +60,8 @@ private slots:
     void on_tableView_clicked(const QModelIndex &index);
     void on_calckSharp_btn_clicked();
     void on_areaSetup_btn_clicked(bool checked);
+    void on_areaW_sb_valueChanged(int arg1);
+    void on_areaH_sb_valueChanged(int arg1);
 
 private:
     Ui::MainWindow *ui;
@@ -87,8 +83,10 @@ private:
     void setSB(QSpinBox *sb, int value);
     void setActiveImg(int index);
     void setActiveImg(QImage img);
-    void scaleImage(double k);
-    void setupModelRow(QStandardItemModel *model, QList<QStandardItem*> row, int rowNum = 0, QString headerName = "Header");
+    void setupModelRow(QStandardItemModel *model, QList<QStandardItem*> row,
+                       int rowNum = 0, QString headerName = "Header");
+    //
+    void paintViewRect(double tlx, double tly, int w, int h);
     //----------------------------------------------
     QImage diffImages(QImage base, QImage current);
     void setVisibleRectCorners(QRectF visible);

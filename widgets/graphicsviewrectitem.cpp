@@ -35,6 +35,7 @@ void GraphicsViewRectItem::paint(QPainter *painter, const QStyleOptionGraphicsIt
 void GraphicsViewRectItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     this->setPos(mapToScene(event->pos()));
+    emit posChanged(this->boundingRect());
 }
 
 void GraphicsViewRectItem::mousePressEvent(QGraphicsSceneMouseEvent *event)

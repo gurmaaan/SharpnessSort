@@ -1,7 +1,15 @@
 #ifndef STATIC_H
 #define STATIC_H
     #define TEST_DIR "C:\\Users\\Dima\\YandexDisk\\EDUCATION\\__UIR3 (Microscope)\\TestImages\\Set1"
-    #define BASE_IMG_STR "опорный кадр: "
-    #define TABLE_IC_SIZE 80
+    #define TEST_DIR_TITTLE "Выберите папку"
     #define IMG_FORMAT "*.bmp"
+//
+    #define TABLE_IC_SIZE 80
+    #define HEADER_NUM "Номер"
+    #define HEADER_IMG "Изображение"
+    #define HEADER_NAME "Имя"
+    #define HEADER_SHARP "Критерий резкости"
+//
+    #define BASE_IMG_STR "опорный кадр: "
+    #define SHARP_IMG_STR "резкий кадр: "
 #endif // STATIC_H

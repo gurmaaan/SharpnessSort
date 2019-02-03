@@ -22,7 +22,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_action_openDir_triggered()
 {
-    QString pathStr = QFileDialog::getExistingDirectory(nullptr, "Выберите папку", TEST_DIR);
+    QString pathStr = QFileDialog::getExistingDirectory(nullptr, TEST_DIR_TITTLE, TEST_DIR);
     QDir imgDir(pathStr);
     ui->dirPath_le->setText(pathStr);
     QStringList imgNames = imgDir.entryList(QStringList() << IMG_FORMAT << IMG_FORMAT,QDir::Files);
@@ -44,8 +44,6 @@ void MainWindow::on_action_openDir_triggered()
 
         if(!img.isNull())
         {
-            setSB(ui->imgSizeH_sb, img.height());
-            setSB(ui->imgSizeW_sb, img.width());
             _images.append(img);
             QStandardItem *imgItem = new QStandardItem;
             QStandardItem *nameItem = new QStandardItem(_imgNames.at(i));
@@ -68,18 +66,25 @@ void MainWindow::on_action_openDir_triggered()
     }
     ui->baseImg_cb->addItems(_imgNames);
 
-    setupModelRow(_model, numRow, 0, "Номер");
-    setupModelRow(_model, imgRow, 1, "Изображение");
-    setupModelRow(_model, nameRow, 2, "Имя");
-    setupModelRow(_model, sharpRow, 3, "Критерий резкости");
+    setupModelRow(_model, numRow, 0, HEADER_NUM);
+    setupModelRow(_model, imgRow, 1, HEADER_IMG);
+    setupModelRow(_model, nameRow, 2, HEADER_NAME);
+    setupModelRow(_model, sharpRow, 3, HEADER_SHARP);
 
     setActiveImg(0);
-    ui->view_gv->fitInView(_viewScene->sceneRect());
+    int imgW = getActiveImage().width();
+    int imgH = getActiveImage().height();
+    setSB(ui->imgSizeH_sb, imgH);
+    setSB(ui->imgSizeW_sb, imgW);
+    ui->areaH_sb->setMaximum(imgH);
+    ui->areaH_sldr->setMaximum(imgH);
+    ui->areaW_sb->setMaximum(imgW);
+    ui->areaW_sldr->setMaximum(imgW);
+    ui->areaH_sldr->setValue(imgH / 10);
+    ui->areaW_sldr->setValue(imgW / 10);
     setBaseIndex(0);
 
     ui->tableView->setRowHeight(1, TABLE_IC_SIZE);
-
-    setVisibleRectCorners(ui->view_gv->mapToScene(ui->view_gv->viewport()->geometry()).boundingRect());
 }
 
 void MainWindow::setupWidgets()
@@ -96,26 +101,8 @@ void MainWindow::setupWidgets()
 
 void MainWindow::connectAll()
 {
-    connect(this, &MainWindow::resultCalced, 
-            this, &MainWindow::setImgDiff);
-    //-------------------------------------
-    connect(ui->view_gv->horizontalScrollBar(), &QScrollBar::sliderMoved,
-            this, &MainWindow::updateCorners);
-    connect(ui->view_gv->verticalScrollBar(), &QScrollBar::valueChanged,
-            this, &MainWindow::updateCorners);
-    connect(ui->diff_gv->verticalScrollBar(), &QScrollBar::valueChanged,
-            this, &MainWindow::updateDiffCorners);
-    connect(ui->view_gv->horizontalScrollBar(), &QScrollBar::valueChanged,
-            this, &MainWindow::updateCorners);
-    connect(ui->diff_gv->horizontalScrollBar(), &QScrollBar::valueChanged,
-            this, &MainWindow::updateDiffCorners);
-    connect(ui->view_gv->verticalScrollBar(), &QScrollBar::sliderMoved,
-            this, &MainWindow::updateCorners);
-    connect(ui->diff_gv->horizontalScrollBar(), &QScrollBar::sliderMoved,
-            this, &MainWindow::updateDiffCorners);
-    connect(ui->diff_gv->verticalScrollBar(), &QScrollBar::sliderMoved,
-            this, &MainWindow::updateDiffCorners);
-    //-----------------------------
+    //connect(_viewScene->items()->first(), &GraphicsViewRectItem::posChanged,
+        //    this, &MainWindow::receiveRect);
 }
 
 void MainWindow::setSB(QSpinBox *sb, int value)
@@ -129,21 +116,12 @@ void MainWindow::setActiveImg(int index)
 {
     if( (index >= 0) && (index < _images.count()) )
     {
-        setVisibleRectCorners(ui->view_gv->mapToScene(ui->view_gv->viewport()->geometry()).boundingRect());
-
         setActiveIndex(index);
         ui->tableView->selectColumn(index);
 
         QImage activeImg = _images.at(index);
         QImage res = diffImages(_baseImage, activeImg);
-
-        double dWidth = static_cast<double>(activeImg.width());
-        double dNewWidth = dWidth * ui->scale_sb->value();
-        int newWidth = static_cast<int>(dNewWidth);
-
-        activeImg = activeImg.scaledToWidth(newWidth);
         setActiveImg(activeImg);
-        res = res.scaledToWidth(newWidth);
         setImgDiff(res);
     }
 }
@@ -157,17 +135,22 @@ void MainWindow::setActiveImg(QImage img)
     _viewScene->addItem(pixmapItem);
 }
 
-void MainWindow::scaleImage(double k)
-{
-    Q_UNUSED(k);
-    //TODO : image scaling
-}
-
 void MainWindow::setupModelRow(QStandardItemModel *model, QList<QStandardItem *> row, int rowNum, QString headerName)
 {
     QStandardItem *verticalHeader = new QStandardItem(headerName);
     model->appendRow(row);
     model->setVerticalHeaderItem(rowNum, verticalHeader);
+}
+
+void MainWindow::paintViewRect(double tlx, double tly, int w, int h)
+{
+    _viewScene->clear();
+    QPixmap pm(QPixmap::fromImage(getActiveImage()));
+    QGraphicsPixmapItem *pixmapItem = new QGraphicsPixmapItem(pm);
+    _viewScene->addItem(pixmapItem);
+    QRectF rect(tlx, tly, w, h);
+    GraphicsViewRectItem *viewArea = new GraphicsViewRectItem(rect);
+    _viewScene->addItem(viewArea);
 }
 
 QImage MainWindow::diffImages(QImage base, QImage current)
@@ -355,21 +338,9 @@ void MainWindow::setBaseIndex(int baseIndex)
     _model->setData(mBaseIndex, QString(BASE_IMG_STR) + _imgNames.at(baseIndex), Qt::DisplayRole);
 }
 
-void MainWindow::updateCorners(int scrollBarPos)
+void MainWindow::receiveRect(QRectF rect)
 {
-    Q_UNUSED(scrollBarPos);
-    setVisibleRectCorners(ui->view_gv->mapToScene(ui->view_gv->viewport()->geometry()).boundingRect());
-}
-
-void MainWindow::updateDiffCorners(int scrollBarPos)
-{
-    Q_UNUSED(scrollBarPos);
-    setVisibleRectCorners(ui->diff_gv->mapToScene(ui->diff_gv->viewport()->geometry()).boundingRect());
-}
-
-void MainWindow::updateCurosor(QCursor cursor)
-{
-    setCursor(cursor);
+    qDebug() << rect;
 }
 
 void MainWindow::on_tableView_clicked(const QModelIndex &index)
@@ -397,13 +368,6 @@ void MainWindow::setImgNames(const QStringList &imgNames)
     _imgNames = imgNames;
 }
 
-void MainWindow::on_diffK_H_sldr_valueChanged(int value)
-{
-    Q_UNUSED(value);
-    //TODO: обновление разности при смене коэффициента
-//    QImage res = diffImages(_baseImage, _activeImage);
-}
-
 QImage MainWindow::getActiveImage() const
 {
     return _activeImage;
@@ -416,7 +380,8 @@ void MainWindow::setActiveImage(const QImage &activeImage)
 
 void MainWindow::on_calckSharp_btn_clicked()
 {
-    Mask mask(QSize(ui->sharpMask_width_sb->value(), ui->sharpMask_height_sb->value()), ui->sharpMascType_cb->currentIndex());
+    Mask mask(QSize(ui->sharpMask_width_sb->value(), ui->sharpMask_height_sb->value()), 
+              ui->sharpMascType_cb->currentIndex());
     mask.print();
     for(QImage img : _images)
         qDebug() << sharpKoeff(mask, img);
@@ -434,10 +399,38 @@ void MainWindow::setDiffImg(const QImage &diffImg)
 
 void MainWindow::on_areaSetup_btn_clicked(bool checked)
 {
+    ui->areaH_sb->setEnabled(checked);
+    ui->areaH_lbl->setEnabled(checked);
+    ui->areaW_lbl->setEnabled(checked);
+    ui->areaW_sb->setEnabled(checked);
+    ui->areaH_sldr->setEnabled(checked);
+    ui->areaW_sldr->setEnabled(checked);
     if(checked)
     {
-        GraphicsViewRectItem *viewRect = new GraphicsViewRectItem();
-        viewRect->setPos(50, 50);
-        _viewScene->addItem(viewRect);
+        double tlx = 0.0, tly = 0.0;
+        if(_viewScene->items().count() > 1)
+        {
+            tlx = _viewScene->items().last()->pos().x();
+            tly = _viewScene->items().last()->pos().y();
+        }
+        paintViewRect(tlx, tly, ui->areaW_sb->value(), ui->areaH_sb->value());
     }
+}
+
+void MainWindow::on_areaW_sb_valueChanged(int arg1)
+{
+    if(ui->areaSetup_btn->isChecked())
+        paintViewRect(_viewScene->items().first()->pos().x(),
+                      _viewScene->items().first()->pos().y(),
+                      arg1,
+                      static_cast<int>(_viewScene->items().first()->boundingRect().height()));
+}
+
+void MainWindow::on_areaH_sb_valueChanged(int arg1)
+{
+    if(ui->areaSetup_btn->isChecked())
+        paintViewRect(_viewScene->items().first()->pos().x(),
+                      _viewScene->items().first()->pos().y(),
+                      static_cast<int>(_viewScene->items().first()->boundingRect().width()),
+                      arg1);
 }
