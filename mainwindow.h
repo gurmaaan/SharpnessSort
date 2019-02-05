@@ -1,4 +1,4 @@
-#ifndef MAINWINDOW_H
+#ifndef MAINWINDOW_H3
 #define MAINWINDOW_H
 
 #include <QMainWindow>
@@ -19,6 +19,7 @@
 #include "static.h"
 #include "mask.h"
 #include "widgets/graphicsviewrectitem.h"
+#include "widgets/qcustomplot.h"
 
 namespace Ui {
 class MainWindow;
@@ -71,8 +72,10 @@ private:
     QStandardItemModel *_model;
     QGraphicsScene *_viewScene;
     QGraphicsScene *_diffScene;
+    QCustomPlot *_plot;
 
     QStringList _imgNames;
+    QList<QImage> _originalImages;
     QList<QImage> _images;
     QList<QImage> _croppedImages;
     QRectF _visibleAreaRect;
@@ -82,6 +85,8 @@ private:
     int _baseIndex;
     int _activeIndex;
     int _sharpIndex;
+
+    QVector<double> _sharpK;
     //
     void setupWidgets();
     void connectAll();
@@ -96,8 +101,11 @@ private:
     QColor validColor(int r = 0, int g = 0, int b = 0);
     int validComponent(int c = 0);
     //---------------------------------------------
-    int sharpKoeff(Mask mask, QImage img);
+    double sharpKoeff(Mask mask, QImage img);
+    double randomSHarp(double min, double max);
+    int avBr(QImage gray);
     QImage grayScaleImg(QImage img);
+    void buildPlot(QVector<double> sharpK);
 };
 
 #endif // MAINWINDOW_H

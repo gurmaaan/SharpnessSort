@@ -16,6 +16,7 @@ class Mask
 public:
     Mask(QSize size, MaskType mt);
     Mask(QSize size, int mt);
+    Mask(QVector<QVector<int>> maskVector);
     QVector<QVector<int> > mask() const;
     QSize size() const;
     void setMask(const QVector<QVector<int> > &mask);

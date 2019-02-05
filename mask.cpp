@@ -16,6 +16,11 @@ Mask::Mask(QSize size, int mt)
     setMask(generator(w,h,t));
 }
 
+Mask::Mask(QVector<QVector<int> > maskVector)
+{
+    setMask(maskVector);
+}
+
 QVector<QVector<int> > Mask::mask() const
 {
     return _mask;

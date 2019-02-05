@@ -44,7 +44,8 @@ void MainWindow::on_action_openDir_triggered()
 
         if(!img.isNull())
         {
-            _images.append(img);
+            _images << img;
+            _originalImages << img;
             QStandardItem *imgItem = new QStandardItem;
             QStandardItem *nameItem = new QStandardItem(_imgNames.at(i));
             QStandardItem *numItem = new QStandardItem(QString::number(i+1));
@@ -97,6 +98,8 @@ void MainWindow::setupWidgets()
 
     _diffScene = new QGraphicsScene;
     ui->diff_gv->setScene(_diffScene);
+
+    _plot = ui->plot_gv;
 }
 
 void MainWindow::connectAll()
@@ -133,6 +136,7 @@ void MainWindow::setActiveImg(QImage img)
     QPixmap pixmap( QPixmap::fromImage(img) );
     QGraphicsPixmapItem *pixmapItem = new QGraphicsPixmapItem(pixmap);
     _viewScene->addItem(pixmapItem);
+    ui->view_gv->fitInView(pixmapItem);
 }
 
 void MainWindow::setupModelRow(QStandardItemModel *model, QList<QStandardItem *> row, int rowNum, QString headerName)
@@ -196,53 +200,24 @@ QColor MainWindow::validColor(int r, int g, int b)
     return outClr;
 }
 
-int MainWindow::sharpKoeff(Mask mask, QImage img)
+double MainWindow::randomSHarp(double min, double max)
 {
-    int maskW = mask.size().width();
-    int maskH = mask.size().height();
+    double rand = static_cast<double>(qrand()) / static_cast<double>(RAND_MAX);
+    return min + rand * (max - min);
+}
 
-    QImage grayImg = grayScaleImg(img);
-    QVector<int> kVals;
-    for(int j = 0; j < img.height() - maskH; j++)
+int MainWindow::avBr(QImage gray)
+{
+    long int cnt = gray.height() * gray.width();
+    long int sum = 0;
+    for(int j = 0; j < gray.height(); j++)
     {
-        int coeff = 0;
-        for(int i = 0; i < img.width() - maskW; i++)
+        for(int i = 0; i < gray.width(); i++)
         {
-            QVector<QVector<int>> newMask;
-            //считаю новую маску
-            for(int ii = 0; ii < maskW; ii++)
-            {
-                QVector<int> newMaskRow;
-                for(int jj = 0; jj < maskH; jj++)
-                {
-                    int mk = mask.maskAt(ii, jj) * grayImg.pixelColor(i+ii, j+jj).red();
-                    newMaskRow.append(mk);
-                }
-                newMask << newMaskRow;
-                newMaskRow.clear();
-            }
-
-            long int sum = 0;
-            long int posSum = 0;
-
-            //нахожу сумму маски и сумму ее положительных элементов
-            for(int jj = 0; jj < newMask.length(); jj++)
-            {
-                QVector<int> newMaskRow = newMask.at(jj);
-                for(int ii = 0; ii < newMaskRow.length(); ii++)
-                {
-                    int nmk = newMaskRow.at(ii);
-                    sum += nmk;
-                    if(nmk > 0)
-                        posSum += nmk;
-                }
-            }
-            coeff = posSum / sum;
-            kVals.append(coeff);
+            sum += qGray(gray.pixel(i, j));
         }
     }
-    int max = *std::max_element(kVals.begin(), kVals.end());
-    return  max;
+    return sum / cnt;
 }
 
 QImage MainWindow::grayScaleImg(QImage img)
@@ -257,6 +232,44 @@ QImage MainWindow::grayScaleImg(QImage img)
         }
     }
     return grayImg;
+}
+
+void MainWindow::buildPlot(QVector<double> sharpK)
+{
+    ui->tabWidget->setCurrentIndex(2);
+    _plot->clearGraphs();
+
+    _plot->legend->setVisible(true);
+    _plot->legend->setFont(QFont("Helvetica", 8));
+
+    QCPAxis *xAxis = _plot->xAxis;
+    QCPAxis *yAxis = _plot->yAxis;
+
+    double maxY = *std::max_element(sharpK.constBegin(), sharpK.constEnd());
+    double minY = *std::min_element(sharpK.constBegin(), sharpK.constEnd());
+    double maxX = 0.0;
+    double minX = static_cast<double>(sharpK.length());
+
+    xAxis->setLabel("Номер изображения");
+    yAxis->setLabel("Коэффициент резкости");
+
+    xAxis->setRange(minX, maxX);
+    yAxis->setRange(minY, maxY);
+
+    QVector<double> dNums;
+    for(int i = 0; i < sharpK.length(); i++)
+        dNums << static_cast<double>(i);
+
+    _plot->addGraph();
+    int gn = _plot->graphCount() - 1;
+    _plot->graph(gn)->setPen(QPen(Qt::black));
+    _plot->graph(gn)->setLineStyle(QCPGraph::lsNone);
+    _plot->graph(gn)->setScatterStyle( QCPScatterStyle(QCPScatterStyle::ssDisc, 4) );
+    _plot->graph(gn)->setData(dNums, sharpK);
+    _plot->graph(gn)->setName("График зависимости коэффициента резкости от номера изображения в серии");
+
+    _plot->axisRect()->setupFullAxesBox();
+    _plot->replot();
 }
 
 int MainWindow::validComponent(int c)
@@ -380,8 +393,71 @@ void MainWindow::on_calckSharp_btn_clicked()
     Mask mask(QSize(ui->sharpMask_width_sb->value(), ui->sharpMask_height_sb->value()), 
               ui->sharpMascType_cb->currentIndex());
     mask.print();
-    for(QImage img : _images)
-        qDebug() << sharpKoeff(mask, img);
+    for(int i = 0; i < _images.count(); i++)
+    {
+        double k = sharpKoeff(mask, _images.at(i));
+        qDebug() << k;
+        _sharpK << k;
+        _model->item(3,i)->setData(k, Qt::DisplayRole);
+    }
+    //TODO: резкий кадр
+    int maxIndex = 0;
+    double max = *std::max_element(_sharpK.constBegin(), _sharpK.constEnd());
+    qDebug() << max;
+    for(int i = 0; i < _sharpK.length(); i++)
+    {
+        if(_sharpK.at(i) == max)
+            maxIndex = i;
+    }
+    QString itemStr = QString(SHARP_IMG_STR) + _imgNames.at(maxIndex);
+    _model->item(2, maxIndex)->setData(itemStr, Qt::DisplayRole);
+    _model->item(2, maxIndex)->setData(QColor(Qt::blue), Qt::BackgroundColorRole);
+    buildPlot(_sharpK);
+}
+
+double MainWindow::sharpKoeff(Mask mask, QImage img)
+{
+    int maskW = mask.size().width();
+    int maskH = mask.size().height();
+    int posSum = (maskW * maskH) / 2;
+
+    QImage grayImg = grayScaleImg(img);
+    QVector<double> kVals;
+    for(int j = 0; j < img.height() - maskH; j++)
+    {
+        double coeff = 0;
+        for(int i = 0; i < img.width() - maskW; i++)
+        {
+            QVector<QVector<int>> newMaskVector;
+            //считаю новую маску
+            for(int ii = 0; ii < maskW; ii++)
+            {
+                QVector<int> newMaskRow;
+                for(int jj = 0; jj < maskH; jj++)
+                {
+                    int mk = mask.maskAt(ii, jj) * grayImg.pixelColor(i+ii, j+jj).red();
+                    newMaskRow.append(mk);
+                }
+                newMaskVector << newMaskRow;
+                newMaskRow.clear();
+            }
+
+            int sum = 0;
+
+            //нахожу сумму маски и сумму ее положительных элементов
+            for(int jj = 0; jj < newMaskVector.length(); jj++)
+            {
+                QVector<int> newMaskRow = newMaskVector.at(jj);
+                for(int ii = 0; ii < newMaskRow.length(); ii++)
+                    sum += newMaskRow.at(ii);;
+
+            }
+            coeff = static_cast<double>(sum) / static_cast<double>(posSum);
+            kVals.append(coeff);
+        }
+    }
+    double max = *std::max_element(kVals.begin(), kVals.end());
+    return  max;
 }
 
 QImage MainWindow::getDiffImg() const
@@ -432,7 +508,8 @@ void MainWindow::on_areaSetup_btn_clicked(bool checked)
             _images << img;
         setActiveImg(0);
         setBaseImage(_images.at(0));
-        ui->view_gv->fitInView(getVisibleAreaRect());
+        //ui->view_gv->fitInView(getVisibleAreaRect());
+
     }
 }
 
