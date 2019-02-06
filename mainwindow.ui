@@ -135,8 +135,15 @@
     <addaction name="action_last"/>
     <addaction name="separator"/>
    </widget>
+   <widget class="QMenu" name="menu_2">
+    <property name="title">
+     <string>Инструменты</string>
+    </property>
+    <addaction name="actionSaveToFile"/>
+   </widget>
    <addaction name="menu_file"/>
    <addaction name="menu"/>
+   <addaction name="menu_2"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -151,7 +158,7 @@
    <property name="minimumSize">
     <size>
      <width>300</width>
-     <height>431</height>
+     <height>483</height>
     </size>
    </property>
    <property name="features">
@@ -309,10 +316,16 @@
      </item>
      <item>
       <widget class="QGroupBox" name="view_gb">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>275</height>
+        </size>
+       </property>
        <property name="title">
         <string>Отображение</string>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
+       <layout class="QVBoxLayout" name="verticalLayout_12">
         <item>
          <widget class="QCommandLinkButton" name="areaSetup_btn">
           <property name="text">
@@ -336,6 +349,12 @@
            <widget class="QLabel" name="areaW_lbl">
             <property name="enabled">
              <bool>false</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
             </property>
             <property name="text">
              <string>Ширина</string>
@@ -375,10 +394,10 @@
                <set>Qt::AlignCenter</set>
               </property>
               <property name="readOnly">
-               <bool>true</bool>
+               <bool>false</bool>
               </property>
               <property name="buttonSymbols">
-               <enum>QAbstractSpinBox::NoButtons</enum>
+               <enum>QAbstractSpinBox::UpDownArrows</enum>
               </property>
               <property name="maximum">
                <number>127</number>
@@ -394,6 +413,12 @@
            <widget class="QLabel" name="areaH_lbl">
             <property name="enabled">
              <bool>false</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
             </property>
             <property name="text">
              <string>Высота</string>
@@ -433,10 +458,10 @@
                <set>Qt::AlignCenter</set>
               </property>
               <property name="readOnly">
-               <bool>true</bool>
+               <bool>false</bool>
               </property>
               <property name="buttonSymbols">
-               <enum>QAbstractSpinBox::NoButtons</enum>
+               <enum>QAbstractSpinBox::UpDownArrows</enum>
               </property>
               <property name="maximum">
                <number>127</number>
@@ -458,244 +483,370 @@
          </widget>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="tl_H_lyt">
+         <layout class="QHBoxLayout" name="horizontalLayout">
           <item>
-           <widget class="QLabel" name="tl_lbl">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
             </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="moveAreaTop_btn">
             <property name="text">
-             <string>Лево верх</string>
-            </property>
-            <property name="buddy">
-             <cstring>tlx_sb</cstring>
+             <string>↑</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="tl_L_lbl">
+           <spacer name="horizontalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QPushButton" name="areaMoveLeft_btn">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+             <sizepolicy hsizetype="Fixed" vsizetype="Minimum">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="maximumSize">
+             <size>
+              <width>16</width>
+              <height>16777215</height>
+             </size>
+            </property>
             <property name="text">
-             <string>(</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-            <property name="buddy">
-             <cstring>tlx_sb</cstring>
+             <string>&lt;</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QSpinBox" name="tlx_sb">
+           <layout class="QVBoxLayout" name="verticalLayout_2">
+            <item>
+             <layout class="QHBoxLayout" name="tl_H_lyt">
+              <item>
+               <widget class="QLabel" name="tl_lbl">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>Лево верх</string>
+                </property>
+                <property name="buddy">
+                 <cstring>tlx_sb</cstring>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="tl_L_lbl">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>(</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+                <property name="buddy">
+                 <cstring>tlx_sb</cstring>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSpinBox" name="tlx_sb">
+                <property name="minimumSize">
+                 <size>
+                  <width>60</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+                <property name="buttonSymbols">
+                 <enum>QAbstractSpinBox::NoButtons</enum>
+                </property>
+                <property name="suffix">
+                 <string/>
+                </property>
+                <property name="prefix">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="tl_x_lbl">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>;</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+                <property name="buddy">
+                 <cstring>tly_sb</cstring>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSpinBox" name="tly_sb">
+                <property name="minimumSize">
+                 <size>
+                  <width>60</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+                <property name="buttonSymbols">
+                 <enum>QAbstractSpinBox::NoButtons</enum>
+                </property>
+                <property name="suffix">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="tl_R_lbl">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>)</string>
+                </property>
+                <property name="buddy">
+                 <cstring>tly_sb</cstring>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="br_H_lyt">
+              <item>
+               <widget class="QLabel" name="br_lbl">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>Право низ</string>
+                </property>
+                <property name="buddy">
+                 <cstring>brx_sb</cstring>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="br_L_lbl">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>(</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+                <property name="buddy">
+                 <cstring>brx_sb</cstring>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSpinBox" name="brx_sb">
+                <property name="minimumSize">
+                 <size>
+                  <width>60</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+                <property name="buttonSymbols">
+                 <enum>QAbstractSpinBox::NoButtons</enum>
+                </property>
+                <property name="suffix">
+                 <string/>
+                </property>
+                <property name="prefix">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="br_x_lbl">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>;</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+                <property name="buddy">
+                 <cstring>bry_sb</cstring>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSpinBox" name="bry_sb">
+                <property name="minimumSize">
+                 <size>
+                  <width>60</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+                <property name="buttonSymbols">
+                 <enum>QAbstractSpinBox::NoButtons</enum>
+                </property>
+                <property name="suffix">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="br_R_lbl">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>)</string>
+                </property>
+                <property name="buddy">
+                 <cstring>bry_sb</cstring>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QPushButton" name="areaMoveRight_btn">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="minimumSize">
              <size>
-              <width>60</width>
+              <width>0</width>
               <height>0</height>
              </size>
             </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-            <property name="readOnly">
-             <bool>true</bool>
-            </property>
-            <property name="buttonSymbols">
-             <enum>QAbstractSpinBox::NoButtons</enum>
-            </property>
-            <property name="suffix">
-             <string/>
-            </property>
-            <property name="prefix">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="tl_x_lbl">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>;</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-            <property name="buddy">
-             <cstring>tly_sb</cstring>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QSpinBox" name="tly_sb">
-            <property name="minimumSize">
+            <property name="maximumSize">
              <size>
-              <width>60</width>
-              <height>0</height>
+              <width>16</width>
+              <height>16777215</height>
              </size>
             </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-            <property name="readOnly">
-             <bool>true</bool>
-            </property>
-            <property name="buttonSymbols">
-             <enum>QAbstractSpinBox::NoButtons</enum>
-            </property>
-            <property name="suffix">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="tl_R_lbl">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
             <property name="text">
-             <string>)</string>
-            </property>
-            <property name="buddy">
-             <cstring>tly_sb</cstring>
+             <string>&gt;</string>
             </property>
            </widget>
           </item>
          </layout>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="br_H_lyt">
+         <layout class="QHBoxLayout" name="moveAreaTop_H_lyt">
           <item>
-           <widget class="QLabel" name="br_lbl">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
+           <spacer name="horizontalSpacer_4">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
             </property>
-            <property name="text">
-             <string>Право низ</string>
-            </property>
-            <property name="buddy">
-             <cstring>brx_sb</cstring>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="br_L_lbl">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>(</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-            <property name="buddy">
-             <cstring>brx_sb</cstring>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QSpinBox" name="brx_sb">
-            <property name="minimumSize">
+            <property name="sizeHint" stdset="0">
              <size>
-              <width>60</width>
-              <height>0</height>
+              <width>40</width>
+              <height>20</height>
              </size>
             </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-            <property name="readOnly">
-             <bool>true</bool>
-            </property>
-            <property name="buttonSymbols">
-             <enum>QAbstractSpinBox::NoButtons</enum>
-            </property>
-            <property name="suffix">
-             <string/>
-            </property>
-            <property name="prefix">
-             <string/>
-            </property>
-           </widget>
+           </spacer>
           </item>
           <item>
-           <widget class="QLabel" name="br_x_lbl">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
+           <widget class="QPushButton" name="moveAreaBottom_btn">
             <property name="text">
-             <string>;</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-            <property name="buddy">
-             <cstring>bry_sb</cstring>
+             <string>↓</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QSpinBox" name="bry_sb">
-            <property name="minimumSize">
+           <spacer name="horizontalSpacer_5">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
              <size>
-              <width>60</width>
-              <height>0</height>
+              <width>40</width>
+              <height>20</height>
              </size>
             </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-            <property name="readOnly">
-             <bool>true</bool>
-            </property>
-            <property name="buttonSymbols">
-             <enum>QAbstractSpinBox::NoButtons</enum>
-            </property>
-            <property name="suffix">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="br_R_lbl">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>)</string>
-            </property>
-            <property name="buddy">
-             <cstring>bry_sb</cstring>
-            </property>
-           </widget>
+           </spacer>
           </item>
          </layout>
         </item>
@@ -1391,6 +1542,21 @@
    </property>
    <property name="toolTip">
     <string>Переместить неподходящие файлы в папку unsharp</string>
+   </property>
+  </action>
+  <action name="actionSaveToFile">
+   <property name="icon">
+    <iconset resource="sources.qrc">
+     <normaloff>:/icons/save_ic.png</normaloff>:/icons/save_ic.png</iconset>
+   </property>
+   <property name="text">
+    <string>Сохранить график в файл</string>
+   </property>
+   <property name="toolTip">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Сохранить получившийся график в файл изображения&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
    </property>
   </action>
  </widget>

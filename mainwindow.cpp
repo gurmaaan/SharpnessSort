@@ -266,7 +266,7 @@ void MainWindow::buildPlot(QVector<double> sharpK)
     _plot->addGraph();
     int gn = _plot->graphCount() - 1;
     _plot->graph(gn)->setPen(QPen(Qt::black));
-    _plot->graph(gn)->setLineStyle(QCPGraph::lsNone);
+    _plot->graph(gn)->setLineStyle(QCPGraph::lsLine);
     _plot->graph(gn)->setScatterStyle( QCPScatterStyle(QCPScatterStyle::ssDisc, 4) );
     _plot->graph(gn)->setData(dNums, sharpK);
     _plot->graph(gn)->setName("График зависимости коэффициента резкости от номера изображения в серии");
@@ -592,8 +592,8 @@ void MainWindow::on_plotCurrent_sb_valueChanged(double arg1)
             aceptedCnt++;
     }
     int all = _sharpK.length();
-    double aceptedPerc = static_cast<double>(aceptedCnt) / static_cast<double>(all);
-    double declinedPerc = static_cast<double>(all - aceptedCnt) / static_cast<double>(all);
+    double aceptedPerc = (static_cast<double>(aceptedCnt) / static_cast<double>(all)) * 100;
+    double declinedPerc = (static_cast<double>(all - aceptedCnt) / static_cast<double>(all)) * 100;
     ui->plotMore_val_sb->setMaximum(aceptedCnt);
     ui->plotMore_val_sb->setValue(aceptedCnt);
     ui->plotLess_val_sb->setMaximum(all - aceptedCnt);
@@ -640,4 +640,36 @@ void MainWindow::on_cancelButton_clicked()
         QString newName = ui->dirPath_le->text() + QDir::separator() + imgName;
         imgFile.rename(newName);
     }
+}
+
+void MainWindow::on_moveAreaTop_btn_clicked()
+{
+    double tlxd = static_cast<double>(ui->tlx_sb->value());
+    double tlyd = static_cast<double>(ui->tly_sb->value() + 1);
+    QPointF newPos(tlxd, tlyd);
+    ui->view_gv->items().first()->setPos(newPos);
+}
+
+void MainWindow::on_areaMoveRight_btn_clicked()
+{
+    double tlxd = static_cast<double>(ui->tlx_sb->value() + 1);
+    double tlyd = static_cast<double>(ui->tly_sb->value());
+    QPointF newPos(tlxd, tlyd);
+    ui->view_gv->items().first()->setPos(newPos);
+}
+
+void MainWindow::on_areaMoveLeft_btn_clicked()
+{
+    double tlxd = static_cast<double>(ui->tlx_sb->value() - 1);
+    double tlyd = static_cast<double>(ui->tly_sb->value());
+    QPointF newPos(tlxd, tlyd);
+    ui->view_gv->items().first()->setPos(newPos);
+}
+
+void MainWindow::on_moveAreaBottom_btn_clicked()
+{
+    double tlxd = static_cast<double>(ui->tlx_sb->value());
+    double tlyd = static_cast<double>(ui->tly_sb->value() + -1);
+    QPointF newPos(tlxd, tlyd);
+    ui->view_gv->items().first()->setPos(newPos);
 }
