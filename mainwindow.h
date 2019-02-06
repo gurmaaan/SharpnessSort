@@ -71,6 +71,10 @@ private slots:
 
     void on_plotCurrent_sb_valueChanged(double arg1);
 
+    void on_move_btn_clicked();
+
+    void on_cancelButton_clicked();
+
 private:
     Ui::MainWindow *ui;
 

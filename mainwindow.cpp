@@ -567,7 +567,10 @@ void MainWindow::on_plotCurrent_sb_valueChanged(double arg1)
 {
     int grNum = _plot->graphCount() - 1;
     if(grNum > 1)
+    {
         _plot->removeGraph(grNum);
+        _plot->legend->removeItem(grNum);
+    }
     double x1 = 0.0;
     double x2 = static_cast<double>(_images.length());
     QVector<double> xVals, yVals;
@@ -590,17 +593,19 @@ void MainWindow::on_plotCurrent_sb_valueChanged(double arg1)
     }
     int all = _sharpK.length();
     double aceptedPerc = static_cast<double>(aceptedCnt) / static_cast<double>(all);
+    double declinedPerc = static_cast<double>(all - aceptedCnt) / static_cast<double>(all);
     ui->plotMore_val_sb->setMaximum(aceptedCnt);
     ui->plotMore_val_sb->setValue(aceptedCnt);
     ui->plotLess_val_sb->setMaximum(all - aceptedCnt);
     ui->plotLess_val_sb->setValue(all - aceptedCnt);
 
     ui->plotMore_per_sb->setValue(aceptedPerc);
-    ui->plotLess_per_sb->setValue(100 - aceptedPerc);
+    ui->plotLess_per_sb->setValue(declinedPerc);
 }
 
 void MainWindow::on_move_btn_clicked()
 {
+    ui->cancelButton->setEnabled(true);
     QVector<int> indexToMove;
     double porog = ui->plotCurrent_sb->value();
     for(int i = 0; i < _sharpK.length(); i++)
@@ -609,5 +614,30 @@ void MainWindow::on_move_btn_clicked()
             indexToMove << i;
     }
 
+    QString folder = ui->dirPath_le->text();
+    QDir dir(folder);
+    if(!dir.entryList().contains(UNSHARP_DIR))
+        dir.mkdir(UNSHARP_DIR);
 
+    for(int index : indexToMove)
+    {
+        QString oldName = folder + QDir::separator() + _imgNames.at(index);
+        QFile imgFile(oldName);
+        QString newName = folder + QDir::separator() + QString(UNSHARP_DIR) + QDir::separator() + _imgNames.at(index);
+        imgFile.rename(newName);
+    }
+}
+
+void MainWindow::on_cancelButton_clicked()
+{
+    QString unsharpFolder = ui->dirPath_le->text() + QDir::separator() + QString(UNSHARP_DIR);
+    QDir dir(unsharpFolder);
+    QStringList imgNames = dir.entryList(QStringList() << IMG_FORMAT << IMG_FORMAT,QDir::Files);
+    for(QString imgName : imgNames)
+    {
+        QString oldName = unsharpFolder + QDir::separator() + imgName;
+        QFile imgFile(oldName);
+        QString newName = ui->dirPath_le->text() + QDir::separator() + imgName;
+        imgFile.rename(newName);
+    }
 }

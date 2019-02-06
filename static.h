@@ -12,4 +12,5 @@
 //
     #define BASE_IMG_STR "опорный кадр: "
     #define SHARP_IMG_STR "резкий кадр: "
+    #define UNSHARP_DIR "unsharp"
 #endif // STATIC_H

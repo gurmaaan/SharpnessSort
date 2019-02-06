@@ -841,6 +841,9 @@
             <property name="buttonSymbols">
              <enum>QAbstractSpinBox::NoButtons</enum>
             </property>
+            <property name="maximum">
+             <number>127</number>
+            </property>
            </widget>
           </item>
          </layout>

@@ -24,7 +24,7 @@ QRectF GraphicsViewRectItem::boundingRect() const
 
 void GraphicsViewRectItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    QPen pen(QBrush(QColor(Qt::red)), 2);
+    QPen pen(QBrush(QColor(Qt::red)), 3);
     painter->setPen(pen);
     painter->setBrush(Qt::transparent);
     painter->drawRect(_boundingRect);
