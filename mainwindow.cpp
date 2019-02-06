@@ -8,8 +8,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     setupWidgets();
-    connectAll();
-    showMaximized();
 
     _baseIndex = 0;
     _sharpIndex = 0;
@@ -50,7 +48,6 @@ void MainWindow::on_action_openDir_triggered()
             QStandardItem *nameItem = new QStandardItem(_imgNames.at(i));
             QStandardItem *numItem = new QStandardItem(QString::number(i+1));
             numItem->setData(Qt::AlignCenter, Qt::TextAlignmentRole);
-            //TODO: коэффициент резкости
             QStandardItem *sharpItem = new QStandardItem(QString::number(0));
             nameItem->setData(Qt::AlignCenter, Qt::TextAlignmentRole);
 
@@ -100,12 +97,6 @@ void MainWindow::setupWidgets()
     ui->diff_gv->setScene(_diffScene);
 
     _plot = ui->plot_gv;
-}
-
-void MainWindow::connectAll()
-{
-    //connect(_viewScene->items()->first(), &GraphicsViewRectItem::posChanged,
-        //    this, &MainWindow::receiveRect);
 }
 
 void MainWindow::setSB(QSpinBox *sb, int value)
@@ -247,6 +238,18 @@ void MainWindow::buildPlot(QVector<double> sharpK)
 
     double maxY = *std::max_element(sharpK.constBegin(), sharpK.constEnd());
     double minY = *std::min_element(sharpK.constBegin(), sharpK.constEnd());
+
+    ui->plotMaxMin_min_sb->setMaximum(minY);
+    ui->plotMaxMin_min_sb->setValue(minY);
+    ui->plotMaxMin_max_sb->setMaximum(maxY);
+    ui->plotMaxMin_max_sb->setValue(maxY);
+
+    ui->plotCurrent_sb->setValue(minY);
+
+    double delta = maxY - minY;
+    double d = delta / 100.0;
+    setDelta(d);
+
     double maxX = 0.0;
     double minX = static_cast<double>(sharpK.length());
 
@@ -336,6 +339,7 @@ void MainWindow::setImgDiff(QImage result)
     QPixmap pm(QPixmap::fromImage(result));
     QGraphicsPixmapItem *pmItem = new QGraphicsPixmapItem(pm);
     _diffScene->addItem(pmItem);
+    ui->diff_gv->fitInView(pmItem);
 }
 
 void MainWindow::setBaseIndex(int baseIndex)
@@ -393,21 +397,23 @@ void MainWindow::on_calckSharp_btn_clicked()
     Mask mask(QSize(ui->sharpMask_width_sb->value(), ui->sharpMask_height_sb->value()), 
               ui->sharpMascType_cb->currentIndex());
     mask.print();
+    ui->sharp_progress->setMaximum(_images.length());
     for(int i = 0; i < _images.count(); i++)
     {
         double k = sharpKoeff(mask, _images.at(i));
-        qDebug() << k;
         _sharpK << k;
         _model->item(3,i)->setData(k, Qt::DisplayRole);
+        ui->sharp_progress->setValue(i+1);
     }
-    //TODO: резкий кадр
     int maxIndex = 0;
     double max = *std::max_element(_sharpK.constBegin(), _sharpK.constEnd());
+
     qDebug() << max;
     for(int i = 0; i < _sharpK.length(); i++)
     {
         if(_sharpK.at(i) == max)
             maxIndex = i;
+        _sharpIndex = i;
     }
     QString itemStr = QString(SHARP_IMG_STR) + _imgNames.at(maxIndex);
     _model->item(2, maxIndex)->setData(itemStr, Qt::DisplayRole);
@@ -457,6 +463,7 @@ double MainWindow::sharpKoeff(Mask mask, QImage img)
         }
     }
     double max = *std::max_element(kVals.begin(), kVals.end());
+
     return  max;
 }
 
@@ -504,12 +511,11 @@ void MainWindow::on_areaSetup_btn_clicked(bool checked)
             _model->item(1, i)->setIcon(pixmap);
         }
         _images.clear();
+
         for(QImage img : _croppedImages)
             _images << img;
         setActiveImg(0);
         setBaseImage(_images.at(0));
-        //ui->view_gv->fitInView(getVisibleAreaRect());
-
     }
 }
 
@@ -531,6 +537,22 @@ void MainWindow::on_areaH_sb_valueChanged(int arg1)
                       arg1);
 }
 
+void MainWindow::on_plotCurrent_sldr_sliderMoved(int position)
+{
+    double current = static_cast<double>(position) * getDelta() + ui->plotMaxMin_min_sb->value();
+    ui->plotCurrent_sb->setValue(current);
+}
+
+double MainWindow::getDelta() const
+{
+    return _delta;
+}
+
+void MainWindow::setDelta(double delta)
+{
+    _delta = delta;
+}
+
 QRectF MainWindow::getVisibleAreaRect() const
 {
     return _visibleAreaRect;
@@ -539,4 +561,53 @@ QRectF MainWindow::getVisibleAreaRect() const
 void MainWindow::setVisibleAreaRect(const QRectF &visibleAreaRect)
 {
     _visibleAreaRect = visibleAreaRect;
+}
+
+void MainWindow::on_plotCurrent_sb_valueChanged(double arg1)
+{
+    int grNum = _plot->graphCount() - 1;
+    if(grNum > 1)
+        _plot->removeGraph(grNum);
+    double x1 = 0.0;
+    double x2 = static_cast<double>(_images.length());
+    QVector<double> xVals, yVals;
+    xVals << x1 << x2;
+    yVals << arg1 << arg1;
+
+    _plot->addGraph();
+    _plot->graph(_plot->graphCount() - 1)->setPen(QPen(Qt::blue, 2));
+    _plot->graph(_plot->graphCount() - 1)->setLineStyle(QCPGraph::lsLine);
+    _plot->graph(_plot->graphCount() - 1)->setData(xVals, yVals);
+    _plot->graph(_plot->graphCount() - 1)->setName("Разделяющая прямая");
+
+    _plot->replot();
+
+    int aceptedCnt = 0;
+    for(double k : _sharpK)
+    {
+        if(k >= arg1)
+            aceptedCnt++;
+    }
+    int all = _sharpK.length();
+    double aceptedPerc = static_cast<double>(aceptedCnt) / static_cast<double>(all);
+    ui->plotMore_val_sb->setMaximum(aceptedCnt);
+    ui->plotMore_val_sb->setValue(aceptedCnt);
+    ui->plotLess_val_sb->setMaximum(all - aceptedCnt);
+    ui->plotLess_val_sb->setValue(all - aceptedCnt);
+
+    ui->plotMore_per_sb->setValue(aceptedPerc);
+    ui->plotLess_per_sb->setValue(100 - aceptedPerc);
+}
+
+void MainWindow::on_move_btn_clicked()
+{
+    QVector<int> indexToMove;
+    double porog = ui->plotCurrent_sb->value();
+    for(int i = 0; i < _sharpK.length(); i++)
+    {
+        if(_sharpK.at(i) <= porog)
+            indexToMove << i;
+    }
+
+
 }
