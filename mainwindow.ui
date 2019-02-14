@@ -1090,6 +1090,13 @@
         <item>
          <layout class="QHBoxLayout" name="calcSHarp_H_lyt">
           <item>
+           <widget class="QPushButton" name="calckSharp_btn">
+            <property name="text">
+             <string>Рассчитать</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <spacer name="calcSharp_L_spcr">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -1103,24 +1110,11 @@
            </spacer>
           </item>
           <item>
-           <widget class="QPushButton" name="calckSharp_btn">
+           <widget class="QPushButton" name="calcSharpAuto_btn">
             <property name="text">
-             <string>Рассчитать</string>
+             <string>Авто</string>
             </property>
            </widget>
-          </item>
-          <item>
-           <spacer name="calcSharp_R_spcr">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
           </item>
          </layout>
         </item>

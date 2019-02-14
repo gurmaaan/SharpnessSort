@@ -78,6 +78,8 @@ private slots:
     void on_moveAreaBottom_btn_clicked();
     void on_actionSaveToFile_triggered();
 
+    void on_calcSharpAuto_btn_clicked();
+
 private:
     Ui::MainWindow *ui;
 

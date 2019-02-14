@@ -23,7 +23,7 @@ public:
     //
     void print();
     int positiveSum();
-    int maskAt(int x, int y);
+    int at(int x, int y);
 
 private:
     QSize _size;

@@ -74,7 +74,7 @@ int Mask::positiveSum()
 
 }
 
-int Mask::maskAt(int x, int y)
+int Mask::at(int x, int y)
 {
     int output = 0;
 
