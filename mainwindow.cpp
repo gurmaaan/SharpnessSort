@@ -97,6 +97,17 @@ void MainWindow::setupWidgets()
     ui->diff_gv->setScene(_diffScene);
 
     _plot = ui->plot_gv;
+
+    QString fFamily = _plot->xAxis->tickLabelFont().family();
+    QFont::StyleHint fStyleHint = _plot->xAxis->tickLabelFont().styleHint();
+    int fPointSize = fPointSize = _plot->xAxis->tickLabelFont().pointSize();
+    QFont font(fFamily, fPointSize * 2);
+    font.setBold(true);
+    font.setStyleHint(fStyleHint);
+    _plot->xAxis->setTickLabelFont(font);
+    _plot->yAxis->setTickLabelFont(font);
+    _plot->xAxis->setLabelFont(font);
+    _plot->yAxis->setLabelFont(font);
 }
 
 void MainWindow::setSB(QSpinBox *sb, int value)
@@ -191,102 +202,6 @@ QColor MainWindow::validColor(int r, int g, int b)
     return outClr;
 }
 
-double MainWindow::randomSHarp(double min, double max)
-{
-    double rand = static_cast<double>(qrand()) / static_cast<double>(RAND_MAX);
-    return min + rand * (max - min);
-}
-
-int MainWindow::avBr(QImage gray)
-{
-    long int cnt = gray.height() * gray.width();
-    long int sum = 0;
-    for(int j = 0; j < gray.height(); j++)
-    {
-        for(int i = 0; i < gray.width(); i++)
-        {
-            sum += qGray(gray.pixel(i, j));
-        }
-    }
-    return sum / cnt;
-}
-
-QImage MainWindow::grayScaleImg(QImage img)
-{
-    QImage grayImg(img.size(), img.format());
-    for (int j = 0; j < img.height(); j++)
-    {
-        for (int i = 0; i < img.width(); i++)
-        {
-            int gray = qGray(img.pixel(i,j));
-            grayImg.setPixelColor(i, j, QColor(gray, gray, gray));
-        }
-    }
-    return grayImg;
-}
-
-void MainWindow::buildPlot(QVector<double> sharpK)
-{
-    ui->tabWidget->setCurrentIndex(2);
-    _plot->clearGraphs();
-
-    _plot->legend->setVisible(false);
-    _plot->legend->setFont(QFont("Helvetica", 8));
-
-    QCPAxis *xAxis = _plot->xAxis;
-    QCPAxis *yAxis = _plot->yAxis;
-
-    double maxY = *std::max_element(sharpK.constBegin(), sharpK.constEnd());
-    double minY = *std::min_element(sharpK.constBegin(), sharpK.constEnd());
-
-    ui->plotMaxMin_min_sb->setMaximum(minY);
-    ui->plotMaxMin_min_sb->setValue(minY);
-    ui->plotMaxMin_max_sb->setMaximum(maxY);
-    ui->plotMaxMin_max_sb->setValue(maxY);
-
-    ui->plotCurrent_sb->setValue(minY);
-
-    double delta = maxY - minY;
-    double d = delta / 100.0;
-    setDelta(d);
-
-    double maxX = 0.0;
-    double minX = static_cast<double>(sharpK.length());
-
-    xAxis->setLabel("Номер изображения");
-    yAxis->setLabel("Коэффициент резкости");
-
-    QString fFamily = xAxis->tickLabelFont().family();
-    QFont::StyleHint fStyleHint = xAxis->tickLabelFont().styleHint();
-    int fPointSize = fPointSize = xAxis->tickLabelFont().pointSize();
-    QFont font(fFamily, fPointSize * 2);
-    font.setBold(true);
-    font.setStyleHint(fStyleHint);
-
-    xAxis->setTickLabelFont(font);
-    yAxis->setTickLabelFont(font);
-    xAxis->setLabelFont(font);
-    yAxis->setLabelFont(font);
-
-    xAxis->setRange(minX, maxX);
-    yAxis->setRange(10, 20);
-
-    QVector<double> dNums;
-    for(int i = 0; i < sharpK.length(); i++)
-        dNums << static_cast<double>(i);
-
-    _plot->addGraph();
-    int gn = _plot->graphCount() - 1;
-    _plot->graph(gn)->setPen(QPen(Qt::black));
-    _plot->graph(gn)->setLineStyle(QCPGraph::lsLine);
-    _plot->graph(gn)->setScatterStyle( QCPScatterStyle(QCPScatterStyle::ssDisc, 4) );
-    _plot->graph(gn)->setData(dNums, sharpK);
-    _plot->graph(gn)->setName("График зависимости коэффициента резкости от номера изображения в серии");
-
-    _plot->axisRect()->setupFullAxesBox();
-    _plot->replot();
-}
-
 int MainWindow::validComponent(int c)
 {
     int outC = 0;
@@ -301,7 +216,8 @@ int MainWindow::validComponent(int c)
 
 void MainWindow::on_action_exit_triggered()
 {
-    QGuiApplication::exit();
+    qApp->quit();
+    QProcess::startDetached(qApp->arguments()[0], qApp->arguments());
 }
 
 void MainWindow::on_action_next_triggered()
@@ -409,6 +325,11 @@ void MainWindow::on_calckSharp_btn_clicked()
     Mask mask(QSize(ui->sharpMask_width_sb->value(), ui->sharpMask_height_sb->value()), 
               ui->sharpMascType_cb->currentIndex());
     mask.print();
+
+    _sharpK.clear();
+    ui->plotMaxMin_min_sb->setValue(0);
+    ui->plotMaxMin_max_sb->setValue(0);
+
     ui->sharp_progress->setMaximum(_images.length());
     for(int i = 0; i < _images.count(); i++)
     {
@@ -418,9 +339,14 @@ void MainWindow::on_calckSharp_btn_clicked()
         ui->sharp_progress->setValue(i+1);
     }
     int maxIndex = 0;
-    double max = *std::max_element(_sharpK.constBegin(), _sharpK.constEnd());
 
-    qDebug() << max;
+    double max = *std::max_element(_sharpK.constBegin(), _sharpK.constEnd());
+    double min = *std::min_element(_sharpK.constBegin(), _sharpK.constEnd());
+
+    qDebug() << ui->dirPath_le->text().split("/").last() << " : "
+             << "mask: " << ui->sharpMask_width_sb->value() << "\t" << ui->sharpMask_height_sb->value() << " ; "
+             << "k: " << min << "\t" << max;
+
     for(int i = 0; i < _sharpK.length(); i++)
     {
         if(_sharpK.at(i) == max)
@@ -430,6 +356,7 @@ void MainWindow::on_calckSharp_btn_clicked()
     QString itemStr = QString(SHARP_IMG_STR) + _imgNames.at(maxIndex);
     _model->item(2, maxIndex)->setData(itemStr, Qt::DisplayRole);
     _model->item(2, maxIndex)->setData(QColor(Qt::blue), Qt::BackgroundColorRole);
+
     buildPlot(_sharpK);
 }
 
@@ -439,7 +366,6 @@ double MainWindow::sharpKoeff(Mask mask, QImage img)
     int maskH = mask.size().height();
     int posSum = (maskW * maskH) / 2;
 
-    QImage grayImg = grayScaleImg(img);
     QVector<double> kVals;
     for(int j = 0; j < img.height() - maskH; j++)
     {
@@ -453,7 +379,7 @@ double MainWindow::sharpKoeff(Mask mask, QImage img)
                 QVector<int> newMaskRow;
                 for(int jj = 0; jj < maskH; jj++)
                 {
-                    int mk = mask.maskAt(ii, jj) * grayImg.pixelColor(i+ii, j+jj).red();
+                    int mk = mask.maskAt(ii, jj) * qGray(img.pixel(i+ii, j+jj));
                     newMaskRow.append(mk);
                 }
                 newMaskVector << newMaskRow;
@@ -479,6 +405,56 @@ double MainWindow::sharpKoeff(Mask mask, QImage img)
     double max = *std::max_element(kVals.begin(), kVals.end());
 
     return  max;
+}
+
+void MainWindow::buildPlot(QVector<double> sharpK)
+{
+    ui->tabWidget->setCurrentIndex(2);
+    _plot->clearGraphs();
+
+    _plot->legend->setVisible(false);
+    _plot->legend->setFont(QFont("Helvetica", 8));
+
+    QCPAxis *xAxis = _plot->xAxis;
+    QCPAxis *yAxis = _plot->yAxis;
+
+    double maxY = *std::max_element(sharpK.constBegin(), sharpK.constEnd());
+    double minY = *std::min_element(sharpK.constBegin(), sharpK.constEnd());
+
+    ui->plotMaxMin_min_sb->setMaximum(minY);
+    ui->plotMaxMin_min_sb->setValue(minY);
+    ui->plotMaxMin_max_sb->setMaximum(maxY);
+    ui->plotMaxMin_max_sb->setValue(maxY);
+
+    ui->plotCurrent_sb->setValue(minY);
+
+    double delta = maxY - minY;
+    double d = delta / 100.0;
+    setDelta(d);
+
+    double maxX = 0.0;
+    double minX = static_cast<double>(sharpK.length());
+
+    xAxis->setLabel("Номер изображения");
+    yAxis->setLabel("Коэффициент резкости");
+
+    xAxis->setRange(minX, maxX);
+    yAxis->setRange(0, 4);
+
+    QVector<double> dNums;
+    for(int i = 0; i < sharpK.length(); i++)
+        dNums << static_cast<double>(i);
+
+    _plot->addGraph();
+    int gn = _plot->graphCount() - 1;
+    _plot->graph(gn)->setPen(QPen(Qt::black));
+    _plot->graph(gn)->setLineStyle(QCPGraph::lsLine);
+    _plot->graph(gn)->setScatterStyle( QCPScatterStyle(QCPScatterStyle::ssDisc, 4) );
+    _plot->graph(gn)->setData(dNums, sharpK);
+    _plot->graph(gn)->setName("График зависимости коэффициента резкости от номера изображения в серии");
+
+    _plot->axisRect()->setupFullAxesBox();
+    _plot->replot();
 }
 
 QImage MainWindow::getDiffImg() const
@@ -579,6 +555,7 @@ void MainWindow::setVisibleAreaRect(const QRectF &visibleAreaRect)
 
 void MainWindow::on_plotCurrent_sb_valueChanged(double arg1)
 {
+    Q_UNUSED(arg1)
 //    int grNum = _plot->graphCount() - 1;
 //    if(grNum > 1)
 //    {
@@ -690,7 +667,7 @@ void MainWindow::on_moveAreaBottom_btn_clicked()
 
 void MainWindow::on_actionSaveToFile_triggered()
 {
+    QString saveImgBaseName = "Белое_" + QString::number(ui->sharpMask_width_sb->value()) + "_" + QString::number(ui->sharpMask_height_sb->value()) + ".png";
     QString downLoads = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
-    QString fileName = QFileDialog::getSaveFileName(nullptr, "Сохранение график", downLoads, "*.png");
-    _plot->savePng(fileName, 1920, 1080);
+    _plot->savePng(downLoads + QDir::separator() + saveImgBaseName, 1920, 1080);
 }
