@@ -230,7 +230,7 @@ void MainWindow::buildPlot(QVector<double> sharpK)
     ui->tabWidget->setCurrentIndex(2);
     _plot->clearGraphs();
 
-    _plot->legend->setVisible(true);
+    _plot->legend->setVisible(false);
     _plot->legend->setFont(QFont("Helvetica", 8));
 
     QCPAxis *xAxis = _plot->xAxis;
@@ -256,8 +256,20 @@ void MainWindow::buildPlot(QVector<double> sharpK)
     xAxis->setLabel("Номер изображения");
     yAxis->setLabel("Коэффициент резкости");
 
+    QString fFamily = xAxis->tickLabelFont().family();
+    QFont::StyleHint fStyleHint = xAxis->tickLabelFont().styleHint();
+    int fPointSize = fPointSize = xAxis->tickLabelFont().pointSize();
+    QFont font(fFamily, fPointSize * 2);
+    font.setBold(true);
+    font.setStyleHint(fStyleHint);
+
+    xAxis->setTickLabelFont(font);
+    yAxis->setTickLabelFont(font);
+    xAxis->setLabelFont(font);
+    yAxis->setLabelFont(font);
+
     xAxis->setRange(minX, maxX);
-    yAxis->setRange(minY, maxY);
+    yAxis->setRange(10, 20);
 
     QVector<double> dNums;
     for(int i = 0; i < sharpK.length(); i++)
@@ -455,9 +467,11 @@ double MainWindow::sharpKoeff(Mask mask, QImage img)
             {
                 QVector<int> newMaskRow = newMaskVector.at(jj);
                 for(int ii = 0; ii < newMaskRow.length(); ii++)
-                    sum += newMaskRow.at(ii);;
+                    sum += newMaskRow.at(ii);
 
             }
+            if(sum < 0)
+                sum = sum * (-1);
             coeff = static_cast<double>(sum) / static_cast<double>(posSum);
             kVals.append(coeff);
         }
@@ -565,42 +579,42 @@ void MainWindow::setVisibleAreaRect(const QRectF &visibleAreaRect)
 
 void MainWindow::on_plotCurrent_sb_valueChanged(double arg1)
 {
-    int grNum = _plot->graphCount() - 1;
-    if(grNum > 1)
-    {
-        _plot->removeGraph(grNum);
-        _plot->legend->removeItem(grNum);
-    }
-    double x1 = 0.0;
-    double x2 = static_cast<double>(_images.length());
-    QVector<double> xVals, yVals;
-    xVals << x1 << x2;
-    yVals << arg1 << arg1;
+//    int grNum = _plot->graphCount() - 1;
+//    if(grNum > 1)
+//    {
+//        _plot->removeGraph(grNum);
+//        _plot->legend->removeItem(grNum);
+//    }
+//    double x1 = 0.0;
+//    double x2 = static_cast<double>(_images.length());
+//    QVector<double> xVals, yVals;
+//    xVals << x1 << x2;
+//    yVals << arg1 << arg1;
 
-    _plot->addGraph();
-    _plot->graph(_plot->graphCount() - 1)->setPen(QPen(Qt::blue, 2));
-    _plot->graph(_plot->graphCount() - 1)->setLineStyle(QCPGraph::lsLine);
-    _plot->graph(_plot->graphCount() - 1)->setData(xVals, yVals);
-    _plot->graph(_plot->graphCount() - 1)->setName("Разделяющая прямая");
+//    _plot->addGraph();
+//    _plot->graph(_plot->graphCount() - 1)->setPen(QPen(Qt::blue, 2));
+//    _plot->graph(_plot->graphCount() - 1)->setLineStyle(QCPGraph::lsLine);
+//    _plot->graph(_plot->graphCount() - 1)->setData(xVals, yVals);
+//    _plot->graph(_plot->graphCount() - 1)->setName("Разделяющая прямая");
 
-    _plot->replot();
+//    _plot->replot();
 
-    int aceptedCnt = 0;
-    for(double k : _sharpK)
-    {
-        if(k >= arg1)
-            aceptedCnt++;
-    }
-    int all = _sharpK.length();
-    double aceptedPerc = (static_cast<double>(aceptedCnt) / static_cast<double>(all)) * 100;
-    double declinedPerc = (static_cast<double>(all - aceptedCnt) / static_cast<double>(all)) * 100;
-    ui->plotMore_val_sb->setMaximum(aceptedCnt);
-    ui->plotMore_val_sb->setValue(aceptedCnt);
-    ui->plotLess_val_sb->setMaximum(all - aceptedCnt);
-    ui->plotLess_val_sb->setValue(all - aceptedCnt);
+//    int aceptedCnt = 0;
+//    for(double k : _sharpK)
+//    {
+//        if(k >= arg1)
+//            aceptedCnt++;
+//    }
+//    int all = _sharpK.length();
+//    double aceptedPerc = (static_cast<double>(aceptedCnt) / static_cast<double>(all)) * 100;
+//    double declinedPerc = (static_cast<double>(all - aceptedCnt) / static_cast<double>(all)) * 100;
+//    ui->plotMore_val_sb->setMaximum(aceptedCnt);
+//    ui->plotMore_val_sb->setValue(aceptedCnt);
+//    ui->plotLess_val_sb->setMaximum(all - aceptedCnt);
+//    ui->plotLess_val_sb->setValue(all - aceptedCnt);
 
-    ui->plotMore_per_sb->setValue(aceptedPerc);
-    ui->plotLess_per_sb->setValue(declinedPerc);
+//    ui->plotMore_per_sb->setValue(aceptedPerc);
+//    ui->plotLess_per_sb->setValue(declinedPerc);
 }
 
 void MainWindow::on_move_btn_clicked()
@@ -672,4 +686,11 @@ void MainWindow::on_moveAreaBottom_btn_clicked()
     double tlyd = static_cast<double>(ui->tly_sb->value() + -1);
     QPointF newPos(tlxd, tlyd);
     ui->view_gv->items().first()->setPos(newPos);
+}
+
+void MainWindow::on_actionSaveToFile_triggered()
+{
+    QString downLoads = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
+    QString fileName = QFileDialog::getSaveFileName(nullptr, "Сохранение график", downLoads, "*.png");
+    _plot->savePng(fileName, 1920, 1080);
 }

@@ -1,6 +1,6 @@
 #ifndef STATIC_H
 #define STATIC_H
-    #define TEST_DIR "C:\\Users\\Dima\\YandexDisk\\EDUCATION\\__UIR3 (Microscope)\\TestImages\\Set1"
+    #define TEST_DIR "C:\\Users\\Dima\\YandexDisk\\EDUCATION\\__PKMS\\TestImages\\Set1"
     #define TEST_DIR_TITTLE "Выберите папку"
     #define IMG_FORMAT "*.bmp"
 //

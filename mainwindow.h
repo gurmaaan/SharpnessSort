@@ -75,6 +75,16 @@ private slots:
 
     void on_cancelButton_clicked();
 
+    void on_moveAreaTop_btn_clicked();
+
+    void on_areaMoveRight_btn_clicked();
+
+    void on_areaMoveLeft_btn_clicked();
+
+    void on_moveAreaBottom_btn_clicked();
+
+    void on_actionSaveToFile_triggered();
+
 private:
     Ui::MainWindow *ui;
 
